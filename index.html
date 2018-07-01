@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html>
+   <head>
+      <meta charset = "utf-8">
+      <title>final project</title>
+	  <link rel = "stylesheet" type = "text/css" href = "style_login.css">
+	  <script>
+		
+		function jumpToStartMap()
+		{
+			var userID = document.getElementById( "ID" ).value;
+			if(userID != "")
+			{
+				document.location.href = "project.html?playerID=" + userID;
+			}
+			else
+			{
+				window.alert("ID不可為空");
+			}
+		}
+		
+	  </script>
+   </head>
+   <body>
+	<img src = "RomeWar.png" id = "RomeWar"></img>
+	<input type = "text" id = "ID" placeholder = "請輸入ID"></input>
+	<img src = "startGame.png" id = "startGame" onclick = "jumpToStartMap()"></img>
+	<div id = "pptDiv" style = "position: absolute; right: 50px; bottom: 50px;">
+		<a href = "https://drive.google.com/file/d/1HQOD02SjCuHuHPVtO6GCj5kMQj9D3j75/view?usp=sharing" style = "font-size: 30px; text-decoration: none;">PPT連結</a>
+	</div>
+   </body>
+</html> 
