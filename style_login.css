@@ -1,0 +1,20 @@
+body			{ background-image: url(login.jpg);
+				  background-repeat: no-repeat;
+				  background-attachment: fixed;
+				  background-size: cover;}
+				  
+#RomeWar		{ position: absolute;
+				  top: 190px;
+				  left: 630px;}
+				  
+#ID				{ position: absolute;
+				  top: 380px;
+				  left: 710px;
+				  width: 300px;
+				  height: 30px;}
+				  
+#startGame		{ position: absolute;
+				  top: 480px;
+				  left: 770px;
+				  width: 195px;
+				  height: 110px;}
