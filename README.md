@@ -3,5 +3,6 @@
         在戰鬥場景的部分，因為原版”travian”是沒有戰鬥場景的，因此我們使用了”爐石戰記”的圖片，並結合我們自己對卡牌遊戲的理解，設計的這次的戰鬥場景
 
 這份github用於大學課堂專題，而非商業用途，若有侵權請通知，我們一定立即撤銷此gitHub
-Travian : https://www.travian.com/tw
+
+Travian : https://www.travian.com/tw/
 爐石: https://playhearthstone.com/zh-tw/
