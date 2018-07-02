@@ -1,0 +1,181 @@
+body     {  background-image : url(gamble.jpg);
+			background-repeat: no-repeat;
+			background-size: cover;
+			font-family: verdana;
+			font-weight: bold;
+			color: DarkGreen;
+}
+
+#enemyImg {  float:left;
+			 position:relative;
+			 top:130px;
+			 right:200px;
+}
+
+#backbtn						{
+									position:absolute;
+									bottom:0px;
+									right:0px;
+									transform:rotateY(180deg);
+								}		  
+.threeD   {
+			transition:transform 1s;
+			transform-style:preserve-3d;
+			perspective: 0px;
+			transform-origin:75%;
+			position:relative;
+}
+.playerArea .threeD img,
+.enemyArea .threeD img,
+#enemyTrick2 img,
+#playerTrick2 img
+			{
+			  width:148px;
+			  height:218.4px;
+}
+img:nth-child(1){ transform:rotateY(-180deg);transform-origin:100%; }
+img:nth-child(2){ transform:translateZ(5px); }
+		
+.enemyArea{
+				position:absolute;
+				right:325px;
+}
+.enemyCard{  
+}
+
+.playerArea{ position:absolute;
+			 left:270px;
+			 top:550px; 
+}
+.playerCard{ 
+}
+.lyingCard {
+				width:218.4px;
+				height:148px;
+}
+
+#hint							{ 			
+								  position:absolute;
+								  font-size:20px;
+								  top:15%;
+								  width:100%;
+								  height:500px;
+								  border-radius:15px;
+								  background-color:white;
+								  z-index:3;
+								}
+#hint p:nth-child(1)			{
+	font-size:30px;
+}
+#hint p span			{
+	color:red;
+}
+#sprite						{
+								  color: DarkBlue;
+}	
+#agreebtn{
+	position:absolute;
+	bottom:20px;
+	right:30px;
+}
+#result {
+	display:none;
+	position:absolute;
+	top:280px;
+	right:13%;
+}
+#result p:nth-child(1){
+	font-size:60px;
+	color:red;
+	text-shadow:8px 8px 5px dimgray;
+}
+#result p:nth-child(2){	
+			position:relative;
+			top:-50px;
+			font-size:20px;
+			right:0px;
+			float:right;
+			font-family: verdana;
+			font-weight: bold;
+			color:red;
+			text-shadow:4px 4px 5px dimgray;			
+}
+#playerTrick1{
+			transform-origin:75% -40%;
+			transition:transform 5s;
+}
+#enemyTrick1{
+			transform-origin:75% 140%;
+			transition:transform 5s;
+}
+#enemyTrick2{
+			transform-origin:3% 50%;
+			transition:transform 3s;
+}
+#playerTrick2{
+			transform-origin:3% 50%;
+			transition:transform 3s;
+}
+#trickImg1{
+			position:relative;
+			transform-origin:75% 50%;
+			transition:transform 5s;
+			transform-style:preserve-3d;
+}
+#trickImg2{
+			position:relative;
+			left:-15px;
+			transform-origin:75% 50%;
+			transition:transform 5s;
+			transform-style:preserve-3d;
+}
+#playerArcher,#playerSoldier,#playerCavalry{
+		position:absolute;
+		top:-70px;
+		left:182px;
+		font-size:25px;
+		width:100px;
+		text-align:center;
+		background-color:white;
+		border-radius:10px;
+}
+#playerSoldier{
+		left:485px;
+}
+#playerCavalry{
+		left:790px;
+}
+#enemyArcher,#enemySoldier,#enemyCavalry{
+		position:relative;
+		top:px;
+		left:182px;
+		font-size:25px;
+		width:100px;
+		text-align:center;
+		background-color:white;
+		border-radius:10px;
+}
+#enemySoldier{
+}
+#enemyCavalry{
+}
+.arrow-up{
+	position:relative;
+	top:325px;
+	left:860px;
+	width:70px;
+	height:70px;
+	border-top:30px solid red;
+	border-right:30px solid red;
+	transform:rotateZ(-45deg);
+	display:none;
+}
+
+.arrow-up:after{
+	 content:"";
+	 width:30px;height:150px;
+	 background-color:red;
+	 position:absolute;left:0;right:0;top:0;bottom:0;
+	 margin:auto;
+	 transform:rotateZ(45deg);
+}

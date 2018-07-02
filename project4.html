@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<meta chartset = "utf-8">
+		<title>final project</title>
+		<link rel = "stylesheet" type = "text/css" href = "style4.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" type="text/javascript"></script>
+	<style type ="text/css">
+	</style>
+	<script>
+	var BGM;
+	function switchBGM(){
+		if(BGM.paused)	BGM.play();
+		else BGM.pause();
+	}	
+	function start(){
+		BGM = document.getElementById("endBGM");
+		BGM.loop = true;
+		BGM.volume = 0.2;
+		BGM.play();
+		var url = location.href;													
+		var temp = url.split("/project4.html?playerID=");													
+		playerID = temp[1];
+		var text = "	<span>當" + playerID + "歷經千辛萬苦到了傳說中的三個魔方，竟然麼事都沒發生...<br>"+
+	    "沒有神燈精靈、也沒有召喚神龍。<br> "+
+	    "「果然還是我太天真了嗎?世界上怎麼可能會有神龍...」" + playerID +"心想，<br>" +
+	    "就在這個時候，" + playerID +" 眼角似乎看到其中一顆魔方顫抖了一下，<br>" +
+	     playerID +"按下心中的激動將那顆魔方端起細細觀察，果然，過了不久魔方又跳動了，<br>" + 
+	    "而且是三個魔方同時顫抖了一下，似乎..他們正在建立什麼神秘的連結，<br>" + 
+	     playerID +"不敢發出任何聲音，似乎怕打斷了他們的連結，<br>" + 
+	    "漸漸魔方的跳動越來越頻繁，幅度越來愈大，<br>" +
+	    "突然三顆魔方都發出一道光線指向遙遠北方，似乎在指引你前往未知的地方，<br>" +
+	    "此刻的" + playerID + "早已驚訝的目瞪口呆，<br>" +
+	    "北方，原是真正的寶物在北方嗎?這三個魔方到底是什麼?它們會帶 " + playerID +"到什麼地方?<br></span>" + 
+	    "<span class = 'continue'>To be continue...<span>";
+		$(".result").html(text);
+		var interval = setInterval(function(){
+			var height = $(".result").css("height").split("px");
+			if( height[0] < 480 ){
+				$(".result").css("height","+=10px");
+			}
+			else{
+				$(".result .continue").fadeIn();
+				clearInterval(interval);
+			}
+		},500);
+	}
+	window.addEventListener("load",start,false);
+	</script>
+	</head>
+	<body>
+	<div class = "result">
+	</div>
+	<audio id = "endBGM" preload = "auto" >
+		<source src = "end.mp3" type = "audio/mpeg">
+	</audio>
+	<img src = "volume.png" style = "position:fixed;top:0;left:0px;" height = "100px" width = "100px" onclick = "switchBGM()">
+	</body>
+</html>

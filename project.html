@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+       <meta charset = "utf-8">
+       <title>final project</title>
+	   <link rel = "stylesheet" type = "text/css" href = "style.css">
+	   
+	   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	   <script>jQuery.noConflict();</script>
+	   <script type="text/javascript" src="js/prototype/prototype.js"></script>
+	   <script type="text/javascript" src="js/bramus/jsProgressBarHandler.js"></script>
+	   
+	   <script>
+		
+		var money = 500;
+		var stone = 500;
+		var wood = 500;
+		var cereal = 500;
+		
+		var needMoney = 0;					//升級需要之金礦
+		var needStone = 0;					//升級需要之石礦
+		var needWood = 0;					//升級需要之木材
+		var needCereal = 0;					//升級需要之穀物
+		
+		var moneyIncresRate = 5;			//金礦生產速度
+		var stoneIncresRate = 4;			//石礦生產速度
+		var woodIncresRate = 2;				//木材生產速度
+		var cerealIncresRate = 1;			//穀物生產速度
+		var RomeFootSoldierIncresRate;		//羅馬步兵產生速率
+		var RomeCavalryIncresRate;			//羅馬騎兵產生速率
+		
+		var RomeFootSoldierPower = 20;		//羅馬步兵之兵力
+		var RomeCavalryPower = 50;			//羅馬騎兵之兵力
+		var RomeArcherPower = 25;			//羅馬弩兵之兵力
+		var totalPower = 0;					//總兵力
+		
+		var RomeFootSoldierNum = 0;			//羅馬步兵之數量
+		var RomeCavalryNum = 0;				//羅馬騎兵之數量
+		var RomeArcherNum = 0;				//羅馬弩兵之數量
+		
+		var 糧倉等級 = 1;
+		var 兵營等級 = 1;
+		var 木材廠等級 = 1;
+		var 石礦場等級 = 1;
+		var 皇宮等級 = 1;
+		var 倉庫等級 = 1;
+		var 市集等級 = 1;
+		var 兵工廠等級 = 1;
+		
+		var 糧倉Interval;					//時間條之Interval
+		var 兵營Interval;					//時間條之Interval
+		var 木材廠Interval;					//時間條之Interval
+		var 石礦場Interval;					//時間條之Interval
+		var 皇宮Interval;					//時間條之Interval
+		var 倉庫Interval;					//時間條之Interval
+		var 市集Interval;					//時間條之Interval
+		var 兵工廠Interval;					//時間條之Interval
+		
+		var 糧倉升級擴增 = "";
+		var 兵營升級擴增 = "";
+		var 木材廠升級擴增 = "";
+		var 石礦場升級擴增 = "";
+		var 皇宮升級擴增 = "";
+		var 倉庫升級擴增 = "";
+		var 市集升級擴增 = "";
+		var 兵工廠升級擴增 = "";
+		
+		var 金礦最大量 = 1800;
+		var 石礦最大量 = 1500;
+		var 木材最大量 = 1200;
+		var 穀物最大量 = 800;
+		
+		var 糧倉升級速率 = 100;
+		var 兵營升級速率 = 100;
+		var 木材廠升級速率 = 100;
+		var 石礦場升級速率 = 100;
+		var 皇宮升級速率 = 100;
+		var 倉庫升級速率 = 100;
+		var 市集升級速率 = 100;
+		var 兵工廠升級速率 = 100;
+		var 羅馬步兵製造時間 = 10;
+		var 羅馬騎兵製造時間 = 10;
+		var 羅馬弩兵製造時間 = 10;
+		var powerUpdateRate = 0.3;			//兵力提升Default
+		
+		var 取得資源速率 = 1000;				//金礦,石礦,木材跳的時間
+		
+		var temp;							//紀錄目前建築物
+		var updateInfor;					//升級得到之擴增
+		var moneyToStone = 8;				//一兩金礦可換得8斤石礦
+		var moneyToWood = 6;				//一兩金礦可換得6斤木材
+		var moneyToCereal = 5;				//一兩金礦可換得5斤穀物
+		
+		var second = 60;					//秒
+		var minute = 60*60;					//分
+		
+		var resourceAmount = { "money":money,"stone":stone,"wood":wood,"cereal":cereal };
+		var numOfSoldier = { "soldier":RomeFootSoldierNum,"cavalry":RomeCavalryNum,"archer":RomeArcherNum };
+		var update_data = {};				//欲更新之資料
+		var playerID;
+		var select;
+		function getData(filename,object,myfunction)
+		{
+			/*jQuery.ajax({
+				url:filename,
+				data:object,
+				method:"POST",
+				async:false,
+				error:function(){alert("")},
+				success:myfunction
+			});*/
+			 filename = filename.split("get_")[1];
+			 var str = localStorage.getItem(playerID + "_" +filename);
+			 console.log(str);
+			 if(!str){
+				str = "{}";
+			 }
+			 console.log(filename);
+			 console.log(str);
+			 myfunction(str);
+		} 
+		
+		function updateFromPHP(filename,object)
+		{
+			/*jQuery.ajax({
+				url:filename, 			//update_resource.php??
+				data:object,
+				method:"POST",
+				async:false,
+				error:function(str){alert(str);}
+			});*/
+			object = JSON.stringify(object);
+			filename = filename.split("update_")[1];
+			localStorage.setItem(playerID + "_" + filename,object);
+		}
+		
+		function showBuildingTable()
+		{
+			jQuery("#extraInfroTable").hide();
+			var table = "<tbody><tr><td onmouseover='showInfor(event)' onmouseout='hideInfro(event)'><img src = '糧倉.png' style = 'width: 100px; height: 100px;' id = '糧倉' draggable = 'true' ondragstart = 'Drag(event)'><br>[糧倉]<p id = '糧倉p'></p></td><td onmouseover='showInfor(event)' onmouseout='hideInfro(event)'><img src = '兵營.png' style = 'width: 100px; height: 100px;' id = '兵營' draggable = 'true' ondragstart = 'Drag(event)'><br>[兵營]<p id = '兵營p'></p></td></tr>" 
+			+ "<tr><td onmouseover='showInfor(event)' onmouseout='hideInfro(event)'><img src = '木材廠.png' style = 'width: 100px; height: 100px;' id = '木材廠' draggable = 'true' ondragstart = 'Drag(event)'><br>[木材廠]<p id = '木材廠p'></p></td><td onmouseover='showInfor(event)' onmouseout='hideInfro(event)'><img src = '石礦場.png' style = 'width: 100px; height: 100px;' id = '石礦場' draggable = 'true' ondragstart = 'Drag(event)'><br>[石礦場]<p id = '石礦場p'></p></td></tr>"
+			+ "<tr><td onmouseover='showInfor(event)' onmouseout='hideInfro(event)'><img src = '皇宮.png' style = 'width: 100px; height: 100px;' id = '皇宮' draggable = 'true' ondragstart = 'Drag(event)'><br>[皇宮]<p id = '皇宮p'></p></td><td onmouseover='showInfor(event)' onmouseout='hideInfro(event)'><img src = '倉庫.png' style = 'width: 100px; height: 100px;' id = '倉庫' draggable = 'true' ondragstart = 'Drag(event)'><br>[倉庫]<p id = '倉庫p'></p></td></tr>"
+			+ "<tr><td onmouseover='showInfor(event)' onmouseout='hideInfro(event)'><img src = '市集.png' style = 'width: 100px; height: 100px;' id = '市集' draggable = 'true' ondragstart = 'Drag(event)'><br>[市集]<p id = '市集p'></p></td><td onmouseover='showInfor(event)' onmouseout='hideInfro(event)'><img src = '兵工廠.png' style = 'width: 100px; height: 100px;' id = '兵工廠' draggable = 'true' ondragstart = 'Drag(event)'><br>[兵工廠]<p id = '兵工廠p'></p></td></tr><tbody>";
+			document.getElementById( "buildingTable" ).innerHTML = table;
+			document.getElementById( "extraInfroTable" ).innerHTML = "";
+			jQuery(".container").show("");
+		}
+		
+		function showInfor(event)
+		{
+			select.play();
+			var targetID = event.target.children[0].id + "p";
+			console.log(event.target.children[0]);
+			switch( targetID )
+			{
+				case "糧倉p":
+					document.getElementById( "buildingInfo" ).innerHTML = "<br>糧倉用來存放您所生產的穀物。糧倉的級數愈高，它可以存放的穀物便會愈多。";
+					break;
+				case "兵營p":
+					document.getElementById( "buildingInfo" ).innerHTML = "<br>兵營是一個訓練步兵的場所，每一名強悍的步兵都經由兵營訓練出來的。兵營等級愈高，訓練步兵的速度便越快。";
+					break;
+				case "木材廠p":
+					document.getElementById( "buildingInfo" ).innerHTML = "<br>木材廠是後期用來增加木材生產的。每一級木材廠會將木材產量提升5%，總共有5級，即最多有25%木材產量提升。";
+					break;
+				case "石礦場p":
+					document.getElementById( "buildingInfo" ).innerHTML = "<br>石礦場是後期用來增加石礦生產的。每一級石礦場會將石礦產量提升5%，總共有5級，即最多有25%石礦產量提升。";
+					break;
+				case "皇宮p":
+					document.getElementById( "buildingInfo" ).innerHTML = "皇宮是獨一無二的建築物。你在整個疆域中只能建造一座，並可以將它所在的村莊宣佈爲主村。它還可以保護村莊免受敵人佔領。你可在此訓練可建立新村莊或征服現有村莊的單位。";
+					break;
+				case "倉庫p":
+					document.getElementById( "buildingInfo" ).innerHTML = "<br>倉庫用來存放您村的資源，包括金礦、石礦、木材。倉庫級數越高，他所能存放的資源也就越多。 ";
+					break;
+				case "市集p":
+					document.getElementById( "buildingInfo" ).innerHTML = "<br>在市場您可以和NPC交易資源。而市場每升一級，您用金礦所交易的資源量就越多。";
+					break;
+				case "兵工廠p":
+					document.getElementById( "buildingInfo" ).innerHTML = "<br>兵工廠用來製造及改良您部隊的戰具，藉以增加部隊的戰力。兵工廠等級越高，能夠製造出的戰具威力也會愈強。";
+					break;
+			}
+		}
+		
+		function hideInfro(event)
+		{
+			document.getElementById( "buildingInfo" ).innerHTML = "";
+			var targetID = event.target.id + "p";
+			if(targetID != "p")
+				document.getElementById( "buildingInfo" ).innerHTML = "";
+		}
+		
+		function AllowDrop(event)
+		{
+			event.preventDefault();
+		}
+		
+		function Drag(event)
+		{
+			event.dataTransfer.setData("text",event.currentTarget.id);
+		}
+		
+		function Drop(event)
+		{
+			var x = event.clientX;	//滑鼠之X座標
+			var y = event.clientY;	//滑鼠之Y座標
+			event.preventDefault();
+			jQuery("#buildingInfo").css("display","none");
+			jQuery("#init").css("border","");
+			var data = event.dataTransfer.getData("text");
+			jQuery("#" + data).off("mouseover");
+			jQuery("#" + data).off("mouseleave");
+			event.currentTarget.appendChild( document.getElementById(data) );
+			document.getElementById(data).setAttribute("style","width: 100px; height: 100px; position: absolute;" + "top:" + (y-50-120) + "px; left: " + (x-50-480) + "px; z-index:" + 1 + ";");
+			document.getElementById(data).setAttribute("draggable","false");
+			document.getElementById(data).setAttribute("onclick","showExtraInfro(event)");
+			
+			switch(data)
+			{
+				case "糧倉":
+					update_data = {playerID:playerID,level:糧倉等級,x:x,y:y};
+					updateFromPHP("update_mill.php",update_data);
+					break;
+				case "兵營":
+					update_data = {playerID:playerID,level:兵營等級,x:x,y:y};
+					updateFromPHP("update_barrack.php",update_data);
+					break;
+				case "木材廠":
+					update_data = {playerID:playerID,level:木材廠等級,x:x,y:y};
+					updateFromPHP("update_logging_camp.php",update_data);
+					break;
+				case "石礦場":
+					update_data = {playerID:playerID,level:石礦場等級,x:x,y:y};
+					updateFromPHP("update_quarry.php",update_data);
+					break;
+				case "皇宮":
+					update_data = {playerID:playerID,level:皇宮等級,x:x,y:y};
+					updateFromPHP("update_palace.php",update_data);
+					break;
+				case "倉庫":
+					update_data = {playerID:playerID,level:倉庫等級,x:x,y:y};
+					updateFromPHP("update_warehouse.php",update_data);
+					break;
+				case "市集":
+					update_data = {playerID:playerID,level:市集等級,x:x,y:y};
+					updateFromPHP("update_market.php",update_data);
+					break;
+				case "兵工廠":
+					update_data = {playerID:playerID,level:兵工廠等級,x:x,y:y};
+					updateFromPHP("update_armory.php",update_data);
+					break;
+			}
+			
+			document.getElementById( "buildingTable" ).innerHTML = "";
+		}
+		
+		function showExtraInfro(event)
+		{
+			jQuery(".sourceTable").hide();
+			temp = event.target.id;
+			var buildingInfro;
+			var table;
+			//console.log(document.getElementsByClassName("container"));
+			//document.getElementsByClassName("container")[].style.display = "none";
+			jQuery("#extraInfroTable").slideDown("slow");
+			switch( event.target.id )
+			{
+				case "糧倉":
+					buildingInfro = "糧倉用來存放您所生產的穀物。糧倉的級數愈高，它可以存放的穀物便會愈多。";
+					needMoney = 80;
+					needStone = 100;
+					needWood = 70;
+					needCereal = 20;
+					糧倉升級擴增 = "穀物生產力:" + (cerealIncresRate + 糧倉等級 * 0.5) + "<br>穀物最大量:" + 穀物最大量;
+					table = "<tbody><tr><td>" + "<img src = '" + event.target.id + ".png" + "'>" + "<br>" + buildingInfro + "</td></tr>";
+					table += "<thead><tr><th>" + "[" + event.target.id + "]" + "</th></tr></thead>";
+					table += "<tfoot><tr><th>" + "<button type = 'button' onclick = 'updateGrade();' id = 'updateBtn'>升級</button>" + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th>" + "費用:<br>" + "<img src = '金幣.png' style = 'width: 30px; height: 30px;'>" + needMoney*糧倉等級 + "<img src = '石礦.png' style = 'width: 30px; height: 30px;'>" + needStone*糧倉等級 + "<img src = '木材.png' style = 'width: 30px; height: 30px;'>" + needWood*糧倉等級 + "<img src = '穀物.png' style = 'width: 30px; height: 30px;'>" + needCereal*糧倉等級 + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '糧倉資訊' class = '糧倉資訊'>" + "[目前等級]:" + 糧倉等級 + "</p></th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '糧倉升級資訊' class = '糧倉升級資訊'>" + 糧倉升級擴增 + "</p></th></tr></tfoot>";
+					break;
+				case "兵營":
+					buildingInfro = "兵營是一個訓練步兵的場所，每一名強悍的步兵都經由兵營訓練出來的。兵營等級愈高，訓練步兵的速度便越快。";
+					needMoney = 270;
+					needStone = 140;
+					needWood = 260;
+					needCereal = 120;
+					兵營升級擴增 = "訓練步兵速度:加速" + 兵營等級*5 + "%";
+					table = "<tbody><tr><td>" + "<img src = '" + event.target.id + ".png" + "'>" + "<br>" + buildingInfro + "</td></tr>";
+					table += "<thead><tr><th>" + "[" + event.target.id + "]" + "</th></tr></thead>";
+					table += "<tfoot><tr><th>" + "<button type = 'button' onclick = 'updateGrade();' id = 'updateBtn'>升級</button>" + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th>" + "費用:<br>" + "<img src = '金幣.png' style = 'width: 30px; height: 30px;'>" + needMoney*兵營等級 + "<img src = '石礦.png' style = 'width: 30px; height: 30px;'>" + needStone*兵營等級 + "<img src = '木材.png' style = 'width: 30px; height: 30px;'>" + needWood*兵營等級 + "<img src = '穀物.png' style = 'width: 30px; height: 30px;'>" + needCereal*兵營等級 + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '兵營資訊' class = '兵營資訊'>" + "[目前等級]:" + 兵營等級 + "</p></th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '兵營升級資訊' class = '兵營升級資訊'>" + 兵營升級擴增 + "</p></th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '兵營造兵數量資訊' class = '兵營造兵數量資訊'>" + "<img src = '羅馬步兵.PNG' style = 'width: 30px; height: 30px;'>" + "<input type = 'text' id = '步兵數量' onfocus = 'showRequirement();' onblur = 'hideRequirement();' value = '0'>" + "<img src = '羅馬騎兵.PNG' style = 'width: 30px; height: 30px;'>" + "<input type = 'text' id = '騎兵數量' onfocus = 'showRequirement();' onblur = 'hideRequirement();' value = '0'>" + "<img src = '賴達弩兵.PNG' style = 'width: 30px; height: 30px;'>" + "<input type = 'text' id = '弩兵數量' onfocus = 'showRequirement();' onblur = 'hideRequirement();' value = '0'>" + "<input type = 'button' value = '製造' onclick = 'produce();' id = 'produceBtn'>" + "</p></th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '兵營造兵資訊' class = '兵營造兵資訊'></p></th></tr></tfoot>"
+					break;
+				case "木材廠":
+					buildingInfro = "木材廠是後期用來增加木材生產的。每一級木材廠會將木材產量提升5%，總共有5級，即最多有25%木材產量提升。";
+					needMoney = 520;
+					needStone = 380;
+					needWood = 290;
+					needCereal = 90;
+					木材廠升級擴增 = "木材生產力:" + (woodIncresRate + 木材廠等級 * 0.5);
+					table = "<tbody><tr><td>" + "<img src = '" + event.target.id + ".png" + "'>" + "<br>" + buildingInfro + "</td></tr>";
+					table += "<thead><tr><th>" + "[" + event.target.id + "]" + "</th></tr></thead>";
+					table += "<tfoot><tr><th>" + "<button type = 'button' onclick = 'updateGrade();' id = 'updateBtn'>升級</button>" + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th>" + "費用:<br>" + "<img src = '金幣.png' style = 'width: 30px; height: 30px;'>" + needMoney*木材廠等級 + "<img src = '石礦.png' style = 'width: 30px; height: 30px;'>" + needStone*木材廠等級 + "<img src = '木材.png' style = 'width: 30px; height: 30px;'>" + needWood*木材廠等級 + "<img src = '穀物.png' style = 'width: 30px; height: 30px;'>" + needCereal*木材廠等級 + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '木材廠資訊' class = '木材廠資訊'>" + "[目前等級]:" + 木材廠等級 + "</p></th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '木材廠升級資訊' class = '木材廠升級資訊'>" + 木材廠升級擴增 + "</p></th></tr></tfoot>";
+					break;
+				case "石礦場":
+					buildingInfro = "石礦場是後期用來增加石礦生產的。每一級石礦場會將石礦產量提升5%，總共有5級，即最多有25%石礦產量提升。";
+					needMoney = 200;
+					needStone = 450;
+					needWood = 510;
+					needCereal = 120;
+					石礦場升級擴增 = "石礦生產力:" + (stoneIncresRate + 石礦場等級 * 0.5);
+					table = "<tbody><tr><td>" + "<img src = '" + event.target.id + ".png" + "'>" + "<br>" + buildingInfro + "</td></tr>";
+					table += "<thead><tr><th>" + "[" + event.target.id + "]" + "</th></tr></thead>";
+					table += "<tfoot><tr><th>" + "<button type = 'button' onclick = 'updateGrade();' id = 'updateBtn'>升級</button>" + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th>" + "費用:<br>" + "<img src = '金幣.png' style = 'width: 30px; height: 30px;'>" + needMoney*石礦場等級 + "<img src = '石礦.png' style = 'width: 30px; height: 30px;'>" + needStone*石礦場等級 + "<img src = '木材.png' style = 'width: 30px; height: 30px;'>" + needWood*石礦場等級 + "<img src = '穀物.png' style = 'width: 30px; height: 30px;'>" + needCereal*石礦場等級 + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '石礦場資訊' class = '石礦場資訊'>" + "[目前等級]:" + 石礦場等級 + "</p></th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '石礦場升級資訊' class = '石礦場升級資訊'>" + 石礦場升級擴增 + "</p></th></tr></tfoot>";
+					break;
+				case "皇宮":
+					buildingInfro = "皇宮是獨一無二的建築物。你在整個疆域中只能建造一座，並可以將它所在的村莊宣佈爲主村。它還可以保護村莊免受敵人佔領。你可在此訓練可建立新村莊或征服現有村莊的單位。";
+					needMoney = 550;
+					needStone = 800;
+					needWood = 750;
+					needCereal = 250;
+					皇宮升級擴增 = "開採金礦速度:加速" + 皇宮等級*5 + "%<br>" + "開採木材速度:加速" + 皇宮等級*5 + "%<br>" + "開採石礦速度:加速" + 皇宮等級*5 + "%<br>" + "生產糧食速度:加速" + 皇宮等級*5 + "%";
+					table = "<tbody><tr><td>" + "<img src = '" + event.target.id + ".png" + "'>" + "<br>" + buildingInfro + "</td></tr>";
+					table += "<thead><tr><th>" + "[" + event.target.id + "]" + "</th></tr></thead>";
+					table += "<tfoot><tr><th>" + "<button type = 'button' onclick = 'updateGrade();' id = 'updateBtn'>升級</button>" + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th>" + "費用:<br>" + "<img src = '金幣.png' style = 'width: 30px; height: 30px;'>" + needMoney*皇宮等級 + "<img src = '石礦.png' style = 'width: 30px; height: 30px;'>" + needStone*皇宮等級 + "<img src = '木材.png' style = 'width: 30px; height: 30px;'>" + needWood*皇宮等級 + "<img src = '穀物.png' style = 'width: 30px; height: 30px;'>" + needCereal*皇宮等級 + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '皇宮資訊' class = '皇宮資訊'>" + "[目前等級]:" + 皇宮等級 + "</p></th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '皇宮升級資訊' class = '皇宮升級資訊'>" + 皇宮升級擴增 + "</p></th></tr></tfoot>";
+					break;
+				case "倉庫":
+					buildingInfro = "倉庫用來存放您村的資源，包括金礦、石礦、木材。倉庫級數越高，他所能存放的資源也就越多。 ";
+					needMoney = 260;
+					needStone = 140;
+					needWood = 220;
+					needCereal = 100;
+					倉庫升級擴增 = "金礦最大量:" + 金礦最大量 + "<br>石礦最大量:" + 石礦最大量 + "<br>木材最大量:" + 木材最大量;
+					table = "<tbody><tr><td>" + "<img src = '" + event.target.id + ".png" + "'>" + "<br>" + buildingInfro + "</td></tr>";
+					table += "<thead><tr><th>" + "[" + event.target.id + "]" + "</th></tr></thead>";
+					table += "<tfoot><tr><th>" + "<button type = 'button' onclick = 'updateGrade();' id = 'updateBtn'>升級</button>" + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th>" + "費用:<br>" + "<img src = '金幣.png' style = 'width: 30px; height: 30px;'>" + needMoney*倉庫等級 + "<img src = '石礦.png' style = 'width: 30px; height: 30px;'>" + needStone*倉庫等級 + "<img src = '木材.png' style = 'width: 30px; height: 30px;'>" + needWood*倉庫等級 + "<img src = '穀物.png' style = 'width: 30px; height: 30px;'>" + needCereal*倉庫等級 + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '倉庫資訊' class = '倉庫資訊'>" + "[目前等級]:" + 倉庫等級 + "</p></th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '倉庫升級資訊' class = '倉庫升級資訊'>" + 倉庫升級擴增 + "</p></th></tr></tfoot>";
+					break;
+				case "市集":
+					buildingInfro = "在市場您可以和NPC交易資源。而市場每升一級，您用金礦所交易的資源量就越多。";
+					needMoney = 80;
+					needStone = 70;
+					needWood = 120;
+					needCereal = 70;
+					市集升級擴增 = "一兩金礦可換得:<br>" + "<span id = 'marketInfro'>" + Math.floor(moneyToStone*市集等級*0.6) + "斤石礦</span><br>" + "<span id = 'marketInfro'>" + Math.floor(moneyToWood*市集等級*0.6) + "斤木材</span><br>" + "<span id = 'marketInfro'>" + Math.floor(moneyToCereal*市集等級*0.6) + "斤穀物</span>";
+					table = "<tbody><tr><td>" + "<img src = '" + event.target.id + ".png" + "'>" + "<br>" + buildingInfro + "</td></tr>";
+					table += "<thead><tr><th>" + "[" + event.target.id + "]" + "</th></tr></thead>";
+					table += "<tfoot><tr><th>" + "<button type = 'button' onclick = 'updateGrade();' id = 'updateBtn'>升級</button>" + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th>" + "費用:<br>" + "<img src = '金幣.png' style = 'width: 30px; height: 30px;'>" + needMoney*市集等級 + "<img src = '石礦.png' style = 'width: 30px; height: 30px;'>" + needStone*市集等級 + "<img src = '木材.png' style = 'width: 30px; height: 30px;'>" + needWood*市集等級 + "<img src = '穀物.png' style = 'width: 30px; height: 30px;'>" + needCereal*市集等級 + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '市集資訊' class = '市集資訊'>" + "[目前等級]:" + 市集等級 + "</p></th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '市集升級資訊' class = '市集升級資訊'>" + 市集升級擴增 + "</p></th></tr></tfoot>";
+					table += "<tfoot><tr><th><input type = 'text' id = 'stonePurchase' value = '0'><input type = 'text' id = 'woodPurchase' value = '0'><input type = 'text' id = 'cerealPurchase' value = '0'><input type = 'button' id = 'purchaseBtn' value = '購買' onclick = 'purchase();'></th></tr></tfoot>"
+					break;
+				case "兵工廠":
+					buildingInfro = "兵工廠用來製造及改良您部隊的戰具，藉以增加部隊的戰力。兵工廠等級越高，能夠製造出的戰具威力也會愈強。";
+					needMoney = 180;
+					needStone = 250;
+					needWood = 500;
+					needCereal = 160;
+					兵工廠升級擴增 = "兵力上升:" + 3*兵工廠等級 + "%";
+					table = "<tbody><tr><td>" + "<img src = '" + event.target.id + ".png" + "'>" + "<br>" + buildingInfro + "</td></tr>";
+					table += "<thead><tr><th>" + "[" + event.target.id + "]" + "</th></tr></thead>";
+					table += "<tfoot><tr><th>" + "<button type = 'button' onclick = 'updateGrade();' id = 'updateBtn'>升級</button>" + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th>" + "費用:<br>" + "<img src = '金幣.png' style = 'width: 30px; height: 30px;'>" + needMoney*兵工廠等級 + "<img src = '石礦.png' style = 'width: 30px; height: 30px;'>" + needStone*兵工廠等級 + "<img src = '木材.png' style = 'width: 30px; height: 30px;'>" + needWood*兵工廠等級 + "<img src = '穀物.png' style = 'width: 30px; height: 30px;'>" + needCereal*兵工廠等級 + "</th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '兵工廠資訊' class = '兵工廠資訊'>" + "[目前等級]:" + 兵工廠等級 + "</p></th></tr></tfoot>";
+					table += "<tfoot><tr><th><p id = '兵工廠升級資訊' class = '兵工廠升級資訊'>" + 兵工廠升級擴增 + "</p></th></tr></tfoot>";
+					break;
+			}
+			document.getElementById( "extraInfroTable" ).innerHTML = table;
+			document.getElementById( "buildingTable" ).innerHTML = "";
+		}
+		
+		function showRequirement()
+		{
+			document.getElementById( "兵營造兵資訊" ).innerHTML = "生產一隻步兵花費50斤穀物<br>" + "生產一隻騎兵花費80斤穀物<br>" + "生產一隻弩兵花費60斤穀物";
+		}
+		
+		function hideRequirement()
+		{
+			document.getElementById( "兵營造兵資訊" ).innerHTML = "";
+		}
+		
+		function produce()
+		{
+			jQuery(".extraInfroTable").hide();
+			jQuery(".sourceTable").show();
+			var 步兵數量 = parseInt(document.getElementById( "步兵數量" ).value);
+			if( cereal - 步兵數量*50 >= 0)
+			{
+				cereal = cereal - 步兵數量*50;
+				
+				var RomeSoldier = 步兵數量*羅馬步兵製造時間;
+				var x = setInterval( function() { var RomeSoldierS = RomeSoldier % second;
+										  var RomeSoldierM = Math.floor(RomeSoldier / second);
+										  document.getElementById( "羅馬步兵造兵" ).innerHTML = "羅馬步兵造兵時間 ->";
+										  document.getElementById( "羅馬步兵造兵時間" ).innerHTML = check(RomeSoldierM) + ":" + check(RomeSoldierS);
+										  RomeSoldier = parseInt(RomeSoldier);
+										  RomeSoldier -= 1;
+										  if( RomeSoldier < 0 )
+										  {
+											clearInterval(x);
+											RomeFootSoldierNum += 步兵數量;
+											document.getElementById( "RomeFootSoldier" ).innerHTML = RomeFootSoldierNum;
+											document.getElementById( "羅馬步兵造兵時間" ).innerHTML = "";
+											document.getElementById( "羅馬步兵造兵" ).innerHTML = "";
+										  }} , (1000-100*兵營等級));
+			
+			}
+			else{ window.alert("資源不足!!!"); }
+			
+			var 騎兵數量 = parseInt(document.getElementById( "騎兵數量" ).value);
+			if( cereal - 騎兵數量*80 >= 0 )
+			{
+				cereal = cereal - 騎兵數量*80;
+				
+				var RomeCavalry = 騎兵數量*羅馬騎兵製造時間;
+				var y = setInterval( function() { var RomeCavalryS = RomeCavalry % second;
+										  var RomeCavalryM = Math.floor(RomeCavalry / second);
+										  document.getElementById( "羅馬騎兵造兵" ).innerHTML = "羅馬騎兵造兵時間 ->";
+										  document.getElementById( "羅馬騎兵造兵時間" ).innerHTML = check(RomeCavalryM) + ":" + check(RomeCavalryS);
+										  RomeCavalry = parseInt(RomeCavalry);
+										  RomeCavalry -= 1;
+										  if( RomeCavalry < 0 )
+										  {
+											clearInterval(y);
+											RomeCavalryNum += 騎兵數量;
+											document.getElementById( "RomeCavalry" ).innerHTML = RomeCavalryNum;
+											document.getElementById( "羅馬騎兵造兵" ).innerHTML = "";
+											document.getElementById( "羅馬騎兵造兵時間" ).innerHTML = "";
+										  }} , (1000-200*兵營等級));
+			}
+			else{ window.alert("資源不足!!!"); }
+			
+			var 弩兵數量 = parseInt(document.getElementById( "弩兵數量" ).value);
+			if( cereal - 弩兵數量*60 >= 0 )
+			{
+				cereal = cereal - 弩兵數量*60;
+				
+				var RomeArcher = 弩兵數量*羅馬弩兵製造時間;
+				var z = setInterval( function() { var RomeArcherS = RomeArcher % second;
+										  var RomeArcherM = Math.floor(RomeArcher / second);
+										  document.getElementById( "羅馬弩兵造兵" ).innerHTML = "羅馬弩兵造兵時間 ->";
+										  document.getElementById( "羅馬弩兵造兵時間" ).innerHTML = check(RomeArcherM) + ":" + check(RomeArcherS);
+										  RomeArcher = parseInt(RomeArcher);
+										  RomeArcher -= 1;
+										  if( RomeArcher < 0 )
+										  {
+											clearInterval(z);
+											RomeArcherNum += 弩兵數量;
+											document.getElementById( "RomeArcher" ).innerHTML = RomeArcherNum;
+											document.getElementById( "羅馬弩兵造兵" ).innerHTML = "";
+											document.getElementById( "羅馬弩兵造兵時間" ).innerHTML = "";
+										  }} , (1000-150*兵營等級));
+			}
+			else{ window.alert("資源不足!!!"); }
+		}
+		
+		function purchase()
+		{
+			var numOfStonePurchase = document.getElementById("stonePurchase").value;
+			var numOfWoodPurchase = document.getElementById("woodPurchase").value;
+			var numOfCerealPurchase = document.getElementById("cerealPurchase").value;
+			
+			if(money - numOfStonePurchase*moneyToStone >= 0)
+			{
+				if(stone + parseInt(numOfStonePurchase) <= 石礦最大量)
+				{
+					money = money - numOfStonePurchase*moneyToStone;
+					stone = stone + parseInt(numOfStonePurchase);
+				}
+				else
+				{
+					window.alert("石礦量超過倉庫所能負擔之數量!!!");
+				}
+			}
+			else
+			{
+				window.alert("金礦不足!!!");
+			}
+			
+			if(money - numOfWoodPurchase*moneyToWood >= 0)
+			{
+				if(wood + parseInt(numOfWoodPurchase) <= 木材最大量)
+				{
+					money = money - numOfWoodPurchase*moneyToWood;
+					wood = wood + parseInt(numOfWoodPurchase);
+				}
+				else
+				{
+					window.alert("木材量超過倉庫所能負擔之數量!!!");
+				}
+			}
+			else
+			{
+				window.alert("金礦不足!!!");
+			}
+			
+			if(money - numOfCerealPurchase*moneyToWood >= 0)
+			{
+				if(cereal + parseInt(numOfCerealPurchase) <= 穀物最大量)
+				{
+					money = money - numOfCerealPurchase*moneyToCereal;
+					cereal = cereal + parseInt(numOfCerealPurchase);
+				}
+				else
+				{
+					window.alert("穀物量超過糧倉所能負擔之數量!!!");
+				}
+			}
+			else
+			{
+				window.alert("金礦不足!!!");
+			}
+		}
+		
+		function check(i)			//將<10的數字前面加上"0"
+		{
+			if(i < 10)
+			{
+				i = "0" + i;
+				return i
+			}
+			else
+				return i;
+		}
+		
+		function updateGrade()
+		{
+			jQuery(".extraInfroTable").hide();
+			jQuery(".sourceTable").show();			
+			switch( temp )
+			{
+				case "糧倉":
+					if( sourceEnoughOrNot() )
+					{
+						money = money - needMoney;
+						stone = stone - needStone;
+						wood = wood - needWood;
+						cereal = cereal - needCereal;
+						getSource();
+												
+						document.getElementById( "糧倉升級時間" ).innerHTML = temp + "升級";
+						糧倉時間條 = new JS_BRAMUS.jsProgressBar(
+							$('糧倉升級時間條'),
+							0,
+							{
+								barImage	: Array(
+									'images/bramus/percentImage_back4.png',
+									'images/bramus/percentImage_back3.png',
+									'images/bramus/percentImage_back2.png',
+									'images/bramus/percentImage_back1.png'
+								),
+
+								onTick : function(pbObj) {
+
+									switch(pbObj.getPercentage()) {
+									
+										case 100:
+											糧倉等級++;
+											update_data = {playerID:playerID,level:糧倉等級,x:1,y:1};
+											updateFromPHP("update_mill.php",update_data);
+											
+											穀物最大量 = 穀物最大量*糧倉等級/(糧倉等級-1)
+											
+											document.getElementById( "糧倉資訊" ).innerHTML = "[目前等級]:" + 糧倉等級;
+											document.getElementById( "糧倉升級資訊" ).innerHTML = "穀物生產力:" + (cerealIncresRate + 糧倉等級 * 0.5) + "<br>穀物最大量:" + 穀物最大量;
+											clearInterval(糧倉Interval);
+											break;
+									}
+
+									return true;
+								}
+							}
+						);
+						糧倉Interval = setInterval( function() { 糧倉時間條.setPercentage('+1'); } , 100 );
+					}
+					else{ window.alert("資源不足!!!"); }
+					break;
+				case "兵營":
+					if( sourceEnoughOrNot() )
+					{
+						money = money - needMoney;
+						stone = stone - needStone;
+						wood = wood - needWood;
+						cereal = cereal - needCereal;
+						getSource();
+												
+						document.getElementById( "兵營升級時間" ).innerHTML = temp + "升級";
+						兵營時間條 = new JS_BRAMUS.jsProgressBar(
+							$('兵營升級時間條'),
+							0,
+							{
+								barImage	: Array(
+									'images/bramus/percentImage_back4.png',
+									'images/bramus/percentImage_back3.png',
+									'images/bramus/percentImage_back2.png',
+									'images/bramus/percentImage_back1.png'
+								),
+
+								onTick : function(pbObj) {
+
+									switch(pbObj.getPercentage()) {
+									
+										case 100:
+											兵營等級++;
+											update_data = {playerID:playerID,level:兵營等級,x:1,y:1};
+											updateFromPHP("update_barrack.php",update_data);
+											document.getElementById( "兵營資訊" ).innerHTML = "[目前等級]:" + 兵營等級;
+											document.getElementById( "兵營升級資訊" ).innerHTML = "訓練步兵速度:加速" + 兵營等級*5 + "%";
+											clearInterval(兵營Interval);
+											break;
+									}
+
+									return true;
+								}
+							}
+						);
+						兵營Interval = setInterval( function() { 兵營時間條.setPercentage('+1'); } , 兵營升級速率*兵營等級);
+					}
+					else{ window.alert("資源不足!!!"); }
+					break;
+				case "木材廠":
+					if( sourceEnoughOrNot() )
+					{
+						money = money - needMoney;
+						stone = stone - needStone;
+						wood = wood - needWood;
+						cereal = cereal - needCereal;
+						getSource();
+												
+						document.getElementById( "木材廠升級時間" ).innerHTML = temp + "升級";
+						木材廠時間條 = new JS_BRAMUS.jsProgressBar(
+							$('木材廠升級時間條'),
+							0,
+							{
+								barImage	: Array(
+									'images/bramus/percentImage_back4.png',
+									'images/bramus/percentImage_back3.png',
+									'images/bramus/percentImage_back2.png',
+									'images/bramus/percentImage_back1.png'
+								),
+
+								onTick : function(pbObj) {
+
+									switch(pbObj.getPercentage()) {
+									
+										case 100:
+											木材廠等級++;
+											update_data = {playerID:playerID,level:木材廠等級,x:1,y:1};
+											updateFromPHP("update_logging_camp.php",update_data);
+											document.getElementById( "木材廠資訊" ).innerHTML = "[目前等級]:" + 木材廠等級;
+											document.getElementById( "木材廠升級資訊" ).innerHTML = "木材生產力:" + (woodIncresRate + 木材廠等級 * 0.5);
+											clearInterval(木材廠Interval);
+											break;
+									}
+
+									return true;
+								}
+							}
+						);
+						木材廠Interval = setInterval( function() { 木材廠時間條.setPercentage('+1'); } , 木材廠升級速率*木材廠等級);
+					}
+					else{ window.alert("資源不足!!!"); }
+					break;
+				case "石礦場":
+					if( sourceEnoughOrNot() )
+					{
+						money = money - needMoney;
+						stone = stone - needStone;
+						wood = wood - needWood;
+						cereal = cereal - needCereal;
+						getSource();
+												
+						document.getElementById( "石礦場升級時間" ).innerHTML = temp + "升級";
+						石礦場時間條 = new JS_BRAMUS.jsProgressBar(
+							$('石礦場升級時間條'),
+							0,
+							{
+								barImage	: Array(
+									'images/bramus/percentImage_back4.png',
+									'images/bramus/percentImage_back3.png',
+									'images/bramus/percentImage_back2.png',
+									'images/bramus/percentImage_back1.png'
+								),
+
+								onTick : function(pbObj) {
+
+									switch(pbObj.getPercentage()) {
+									
+										case 100:
+											石礦場等級++;
+											update_data = {playerID:playerID,level:石礦場等級,x:1,y:1};
+											updateFromPHP("update_quarry.php",update_data);
+											document.getElementById( "石礦場資訊" ).innerHTML = "[目前等級]:" + 石礦場等級;
+											document.getElementById( "石礦場升級資訊" ).innerHTML = "石礦生產力:" + (stoneIncresRate + 石礦場等級 * 0.5);
+											clearInterval(石礦場Interval);
+											break;
+									}
+
+									return true;
+								}
+							}
+						);
+						石礦場Interval = setInterval( function() { 石礦場時間條.setPercentage('+1'); } , 石礦場升級速率*石礦場等級);
+					}
+					else{ window.alert("資源不足!!!"); }
+					break;
+				case "皇宮":
+					if( sourceEnoughOrNot() )
+					{
+						money = money - needMoney;
+						stone = stone - needStone;
+						wood = wood - needWood;
+						cereal = cereal - needCereal;
+						getSource();
+								
+						document.getElementById( "皇宮升級時間" ).innerHTML = temp + "升級";
+						皇宮時間條 = new JS_BRAMUS.jsProgressBar(
+							$('皇宮升級時間條'),
+							0,
+							{
+								barImage	: Array(
+									'images/bramus/percentImage_back4.png',
+									'images/bramus/percentImage_back3.png',
+									'images/bramus/percentImage_back2.png',
+									'images/bramus/percentImage_back1.png'
+								),
+
+								onTick : function(pbObj) {
+
+									switch(pbObj.getPercentage()) {
+									
+										case 100:
+											皇宮等級++;
+											update_data = {playerID:playerID,level:皇宮等級,x:1,y:1};
+											updateFromPHP("update_palace.php",update_data);
+											cerealIncresRate = cerealIncresRate + 皇宮等級 * 0.5;
+											woodIncresRate = woodIncresRate + 皇宮等級 * 0.5;
+											stoneIncresRate = stoneIncresRate + 皇宮等級 * 0.5;
+											document.getElementById( "皇宮資訊" ).innerHTML = "[目前等級]:" + 皇宮等級;
+											document.getElementById( "皇宮升級資訊" ).innerHTML = "開採金礦速度:加速" + 皇宮等級*5 + "%<br>" + "開採木材速度:加速" + 皇宮等級*5 + "%<br>" + "開採石礦速度:加速" + 皇宮等級*5 + "%<br>" + "生產糧食速度:加速" + 皇宮等級*5 + "%";
+											clearInterval(皇宮Interval);
+											break;
+									}
+
+									return true;
+								}
+							}
+						);
+						皇宮Interval = setInterval( function() { 皇宮時間條.setPercentage('+1'); } , 皇宮升級速率*皇宮等級);
+					}
+					else{ window.alert("資源不足!!!"); }
+					break;
+				case "倉庫":
+					if( sourceEnoughOrNot() )
+					{
+						money = money - needMoney;
+						stone = stone - needStone;
+						wood = wood - needWood;
+						cereal = cereal - needCereal;
+						getSource();
+												
+						document.getElementById( "倉庫升級時間" ).innerHTML = temp + "升級";
+						倉庫時間條 = new JS_BRAMUS.jsProgressBar(
+							$('倉庫升級時間條'),
+							0,
+							{
+								barImage	: Array(
+									'images/bramus/percentImage_back4.png',
+									'images/bramus/percentImage_back3.png',
+									'images/bramus/percentImage_back2.png',
+									'images/bramus/percentImage_back1.png'
+								),
+
+								onTick : function(pbObj) {
+
+									switch(pbObj.getPercentage()) {
+									
+										case 100:
+											倉庫等級++;
+											update_data = {playerID:playerID,level:倉庫等級,x:1,y:1};
+											updateFromPHP("update_warehouse.php",update_data);
+											document.getElementById( "倉庫資訊" ).innerHTML = "[目前等級]:" + 倉庫等級;
+											
+											金礦最大量 = 金礦最大量*倉庫等級/(倉庫等級-1);
+											石礦最大量 = 石礦最大量*倉庫等級/(倉庫等級-1);
+											木材最大量 = 木材最大量*倉庫等級/(倉庫等級-1);
+											
+											document.getElementById( "倉庫升級資訊" ).innerHTML = "金礦最大量:" + 金礦最大量 + "<br>金礦最大量:" + 石礦最大量 + "<br>木材最大量:" + 木材最大量;											
+											clearInterval(倉庫Interval);
+											break;
+									}
+
+									return true;
+								}
+							}
+						);
+						倉庫Interval = setInterval( function() { 倉庫時間條.setPercentage('+1'); } , 倉庫升級速率);
+					}
+					else{ window.alert("資源不足!!!"); }
+					break;
+				case "市集":
+					if( sourceEnoughOrNot() )
+					{
+						money = money - needMoney;
+						stone = stone - needStone;
+						wood = wood - needWood;
+						cereal = cereal - needCereal;
+						getSource();
+												
+						document.getElementById( "市集升級時間" ).innerHTML = temp + "升級";
+						市集時間條 = new JS_BRAMUS.jsProgressBar(
+							$('市集升級時間條'),
+							0,
+							{
+								barImage	: Array(
+									'images/bramus/percentImage_back4.png',
+									'images/bramus/percentImage_back3.png',
+									'images/bramus/percentImage_back2.png',
+									'images/bramus/percentImage_back1.png'
+								),
+
+								onTick : function(pbObj) {
+
+									switch(pbObj.getPercentage()) {
+									
+										case 100:
+											市集等級++;
+											update_data = {playerID:playerID,level:市集等級,x:1,y:1};
+											updateFromPHP("update_market.php",update_data);
+											
+											document.getElementById( "市集資訊" ).innerHTML = "[目前等級]:" + 市集等級;
+											document.getElementById( "市集升級資訊" ).innerHTML = "一兩金礦可換得:<br>" + "<span id = 'marketInfro'>" + Math.floor(moneyToStone*市集等級*0.6) + "斤石礦</span><br>" + "<span id = 'marketInfro'>" + Math.floor(moneyToWood*市集等級*0.6) + "斤木材</span><br>" + "<span id = 'marketInfro'>" + Math.floor(moneyToCereal*市集等級*0.6) + "斤穀物</span>";;
+											clearInterval(市集Interval);
+											break;
+									}
+
+									return true;
+								}
+							}
+						);
+						市集Interval = setInterval( function() { 市集時間條.setPercentage('+1');} , 市集升級速率*市集等級);
+					}
+					else{ window.alert("資源不足!!!"); }
+					break;
+				case "兵工廠":
+					if( sourceEnoughOrNot() )
+					{
+						money = money - needMoney;
+						stone = stone - needStone;
+						wood = wood - needWood;
+						cereal = cereal - needCereal;
+						getSource();
+												
+						document.getElementById( "兵工廠升級時間" ).innerHTML = temp + "升級";
+						兵工廠時間條 = new JS_BRAMUS.jsProgressBar(
+							$('兵工廠升級時間條'),
+							0,
+							{
+								barImage	: Array(
+									'images/bramus/percentImage_back4.png',
+									'images/bramus/percentImage_back3.png',
+									'images/bramus/percentImage_back2.png',
+									'images/bramus/percentImage_back1.png'
+								),
+
+								onTick : function(pbObj) {
+
+									switch(pbObj.getPercentage()) {
+									
+										case 100:
+											兵工廠等級++;
+											update_data = {playerID:playerID,level:兵工廠等級,x:1,y:1};
+											updateFromPHP("update_armory.php",update_data);
+											powerUpdateRate = 0.3*兵工廠等級;
+											document.getElementById( "兵工廠資訊" ).innerHTML = "[目前等級]:" + 兵工廠等級;
+											document.getElementById( "兵工廠升級資訊" ).innerHTML = "兵力上升:" + 3*兵工廠等級 + "%";
+											clearInterval(兵工廠Interval);
+											break;
+									}
+
+									return true;
+								}
+							}
+						);
+						兵工廠Interval = setInterval( function() { 兵工廠時間條.setPercentage('+1'); } , 兵工廠升級速率*兵工廠等級);
+					}
+					else{ window.alert("資源不足!!!"); }
+					break;
+			}	
+		}
+		function Info(){
+			jQuery("#init,.rotation,#hint").toggle();
+			if(jQuery("#sprite").text() == "點選小精靈以關閉提示"){
+				jQuery("#sprite").text("點擊精靈以獲得提示");
+			}
+			else{
+				jQuery("#sprite").text("點選小精靈以關閉提示");
+			}
+		}
+		function sourceEnoughOrNot()
+		{
+			if(money - needMoney >= 0)
+			{
+				if(stone - needStone >= 0)
+				{
+					if(wood - needWood >= 0)
+					{
+						if(cereal - needCereal >= 0)
+						{
+							return true;
+						}
+						else
+						{
+							return false;
+						}
+					}
+					else
+					{
+						return false;
+					}
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+		
+		
+		function getSource()
+		{
+			if( money < 金礦最大量 )
+			{
+				money += moneyIncresRate;
+			}
+			
+			if( stone < 石礦最大量 )
+			{
+				stone += stoneIncresRate;
+			}
+			
+			if( wood < 木材最大量 )
+			{
+				wood += woodIncresRate;
+			}
+			
+			if( cereal < 穀物最大量 )
+			{
+				cereal += cerealIncresRate;
+			}
+			
+			document.getElementById( "money" ).innerHTML = Math.floor(money);
+			document.getElementById( "stone" ).innerHTML = Math.floor(stone);
+			document.getElementById( "wood" ).innerHTML = Math.floor(wood);
+			document.getElementById( "cereal" ).innerHTML = Math.floor(cereal);
+
+		
+			updateFromPHP("update_resource.php",{playerID:playerID,money:money,stone:stone,wood:wood,cereal:cereal});
+			update_data = {playerID:playerID,soldier:RomeFootSoldierNum,cavalry:RomeCavalryNum,archer:RomeArcherNum};
+			updateFromPHP("update_soldier.php",update_data);
+		}
+		
+		function jumpToWorldMap()
+		{
+			document.location.href = "project2.html?playerID="+playerID;
+		}
+		
+		function gameCheat()
+		{
+			money = 10000;
+			stone = 10000;
+			wood = 10000;
+			cereal = 10000;
+			RomeFootSoldierNum = 5000;
+			RomeCavalryNum = 5000;
+			RomeArcherNum = 5000;
+			
+			document.getElementById( "RomeFootSoldier" ).innerHTML = RomeFootSoldierNum;
+			document.getElementById( "RomeCavalry" ).innerHTML = RomeCavalryNum;
+			document.getElementById( "RomeArcher" ).innerHTML = RomeArcherNum;
+		
+			updateFromPHP("update_resource.php",{playerID:playerID,money:money,stone:stone,wood:wood,cereal:cereal});
+			update_data = {playerID:playerID,soldier:RomeFootSoldierNum,cavalry:RomeCavalryNum,archer:RomeArcherNum};
+			updateFromPHP("update_soldier.php",update_data);
+		}
+		
+		function switchBGM(){
+			var BGM = document.getElementById("projectBGM");
+			if(BGM.paused)	BGM.play();
+			else BGM.pause();
+		}		
+		
+		function start()
+		{
+			var url = location.href;													
+			var temp = url.split("/project.html?playerID=");													
+			playerID = temp[1];
+			
+			getData("get_resource.php",{playerID:playerID},function(str){
+																str = JSON.parse(str);
+																str = JSON.stringify(str);
+																if(str != "{}")
+																{
+																	var data = JSON.parse(str);
+																	money = parseInt(data.money);
+																	stone = parseInt(data.stone);
+																	wood = parseInt(data.wood);
+																	cereal = parseInt(data.cereal);
+																}
+																else{
+																	money = 500;
+																	stone = 500;
+																	wood = 500;
+																	cereal = 500;
+																}
+																});
+			
+			document.getElementById( "money" ).innerHTML = money;
+			document.getElementById( "stone" ).innerHTML = stone;
+			document.getElementById( "wood" ).innerHTML = wood;
+			document.getElementById( "cereal" ).innerHTML = cereal;
+			
+			getData("get_soldier.php",{playerID:playerID},function(str){
+																str = JSON.parse(str);
+																str = JSON.stringify(str);
+																if(str != "{}")
+																{
+																	var data = JSON.parse(str);
+																	RomeFootSoldierNum = parseInt(data.soldier);
+																	RomeCavalryNum = parseInt(data.cavalry);
+																	RomeArcherNum = parseInt(data.archer);
+																}
+																else{
+																	RomeFootSoldierNum = 0;
+																	RomeCavalryNum = 0;
+																	RomeArcherNum = 0;
+																}
+																});
+			
+			document.getElementById( "RomeFootSoldier" ).innerHTML = RomeFootSoldierNum;
+			document.getElementById( "RomeCavalry" ).innerHTML = RomeCavalryNum;
+			document.getElementById( "RomeArcher" ).innerHTML = RomeArcherNum;
+			
+			getData("get_mill.php",{playerID:playerID},function(str){
+																str = JSON.parse(str);
+																str = JSON.stringify(str);
+																if(str != "{}")
+																{
+																	var data = JSON.parse(str);
+																	糧倉等級 = data.level;
+																	
+																	穀物最大量 = 穀物最大量*糧倉等級;
+																	
+																	var mill = document.createElement("img");
+																	mill.setAttribute("src","糧倉.png");
+																	mill.setAttribute("id","糧倉");
+																	mill.setAttribute("style","width: 100px; height: 100px; position: absolute;" + "top:" + (data.y-50-100) + "px; left: " + (data.x-50-420) + "px; z-index:" + 1 + ";");
+																	mill.setAttribute("draggable","false");
+																	mill.setAttribute("onclick","showExtraInfro(event)");
+																	document.getElementById("init").appendChild(mill);
+																	jQuery("li img").each(function(){
+																		if( jQuery(this).attr("src") == "糧倉.png"){
+																			jQuery(this).css("display","none");
+																		}
+																	});
+																}
+																});
+																 
+			getData("get_barrack.php",{playerID:playerID},function(str){
+																str = JSON.parse(str);
+																str = JSON.stringify(str);
+																if(str != "{}")
+																{
+																	var data = JSON.parse(str);
+																	兵營等級 = data.level;
+																	var barrack = document.createElement("img");
+																	barrack.setAttribute("src","兵營.png");
+																	barrack.setAttribute("id","兵營");
+																	barrack.setAttribute("style","width: 100px; height: 100px; position: absolute;" + "top:" + (data.y-50-120) + "px; left: " + (data.x-50-480) + "px; z-index:" + 1 + ";");
+																	barrack.setAttribute("draggable","false");
+																	barrack.setAttribute("onclick","showExtraInfro(event)");
+																	document.getElementById("init").appendChild(barrack);
+																	jQuery("li img").each(function(){
+																		if( jQuery(this).attr("src") == "兵營.png"){
+																			jQuery(this).css("display","none");
+																		}
+																	});
+																}
+																});
+
+			getData("get_logging_camp.php",{playerID:playerID},function(str){
+																str = JSON.parse(str);
+																str = JSON.stringify(str);
+																if(str != "{}")
+																{
+																	var data = JSON.parse(str);
+																	木材廠等級 = data.level;
+																	var logging_camp = document.createElement("img");
+																	logging_camp.setAttribute("src","木材廠.png");
+																	logging_camp.setAttribute("id","木材廠");
+																	logging_camp.setAttribute("style","width: 100px; height: 100px; position: absolute;" + "top:" + (data.y-50-120) + "px; left: " + (data.x-50-480) + "px; z-index:" + 1 + ";");
+																	logging_camp.setAttribute("draggable","false");
+																	logging_camp.setAttribute("onclick","showExtraInfro(event)");
+																	document.getElementById("init").appendChild(logging_camp);
+																	jQuery("li img").each(function(){
+																		if( jQuery(this).attr("src") == "木材廠.png"){
+																			jQuery(this).css("display","none");
+																		}
+																	});
+																}
+																});
+
+			getData("get_quarry.php",{playerID:playerID},function(str){
+																str = JSON.parse(str);
+																str = JSON.stringify(str);
+																if(str != "{}")
+																{
+																	var data = JSON.parse(str);
+																	石礦場等級 = data.level;
+																	var quarry = document.createElement("img");
+																	quarry.setAttribute("src","石礦場.png");
+																	quarry.setAttribute("id","石礦場");
+																	quarry.setAttribute("style","width: 100px; height: 100px; position: absolute;" + "top:" + (data.y-50-120) + "px; left: " + (data.x-50-480) + "px; z-index:" + 1 + ";");
+																	quarry.setAttribute("draggable","false");
+																	quarry.setAttribute("onclick","showExtraInfro(event)");
+																	document.getElementById("init").appendChild(quarry);
+																	jQuery("li img").each(function(){
+																		if( jQuery(this).attr("src") == "石礦場.png"){
+																			jQuery(this).css("display","none");
+																		}
+																	});																
+																}
+																});
+
+			getData("get_palace.php",{playerID:playerID},function(str){
+																str = JSON.parse(str);
+																str = JSON.stringify(str);
+																if(str != "{}")
+																{
+																	var data = JSON.parse(str);
+																	皇宮等級 = data.level;
+																	var palace = document.createElement("img");
+																	palace.setAttribute("src","皇宮.png");
+																	palace.setAttribute("id","皇宮");
+																	palace.setAttribute("style","width: 100px; height: 100px; position: absolute;" + "top:" + (data.y-50-120) + "px; left: " + (data.x-50-480) + "px; z-index:" + 1 + ";");
+																	palace.setAttribute("draggable","false");
+																	palace.setAttribute("onclick","showExtraInfro(event)");
+																	document.getElementById("init").appendChild(palace);
+																	jQuery("li img").each(function(){
+																		if( jQuery(this).attr("src") == "皇宮.png"){
+																			jQuery(this).css("display","none");
+																		}
+																	});																
+																}
+																});
+
+			getData("get_warehouse.php",{playerID:playerID},function(str){
+																str = JSON.parse(str);
+																str = JSON.stringify(str);
+																if(str != "{}")
+																{
+																	var data = JSON.parse(str);
+																	倉庫等級 = data.level;
+																	
+																	金礦最大量 = 金礦最大量*倉庫等級;
+																	石礦最大量 = 石礦最大量*倉庫等級;
+																	木材最大量 = 木材最大量*倉庫等級;
+																	
+																	var warehouse = document.createElement("img");
+																	warehouse.setAttribute("src","倉庫.png");
+																	warehouse.setAttribute("id","倉庫");
+																	warehouse.setAttribute("style","width: 100px; height: 100px; position: absolute;" + "top:" + (data.y-50-120) + "px; left: " + (data.x-50-480) + "px; z-index:" + 1 + ";");
+																	warehouse.setAttribute("draggable","false");
+																	warehouse.setAttribute("onclick","showExtraInfro(event)");
+																	document.getElementById("init").appendChild(warehouse);
+																	jQuery("li img").each(function(){
+																		if( jQuery(this).attr("src") == "倉庫.png"){
+																			jQuery(this).css("display","none");
+																		}
+																	});																	
+																}
+																});
+
+			getData("get_market.php",{playerID:playerID},function(str){
+																str = JSON.parse(str);
+																str = JSON.stringify(str);
+																if(str != "{}")
+																{
+																	var data = JSON.parse(str);
+																	市集等級 = data.level;
+																	var market = document.createElement("img");
+																	market.setAttribute("src","市集.png");
+																	market.setAttribute("id","市集");
+																	market.setAttribute("style","width: 100px; height: 100px; position: absolute;" + "top:" + (data.y-50-120) + "px; left: " + (data.x-50-480) + "px; z-index:" + 1 + ";");
+																	market.setAttribute("draggable","false");
+																	market.setAttribute("onclick","showExtraInfro(event)");
+																	document.getElementById("init").appendChild(market);
+																	jQuery("li img").each(function(){
+																		if( jQuery(this).attr("src") == "市集.png"){
+																			jQuery(this).css("display","none");
+																		}
+																	});																		
+																}
+																});
+
+			getData("get_armory.php",{playerID:playerID},function(str){
+																str = JSON.parse(str);
+																str = JSON.stringify(str);
+																if(str != "{}")
+																{
+																	var data = JSON.parse(str);
+																	兵工廠等級 = data.level;
+																	var armory = document.createElement("img");
+																	armory.setAttribute("src","兵工廠.png");
+																	armory.setAttribute("id","兵工廠");
+																	armory.setAttribute("style","width: 100px; height: 100px; position: absolute;" + "top:" + (data.y-50-120) + "px; left: " + (data.x-50-480) + "px; z-index:" + 1 + ";");
+																	armory.setAttribute("draggable","false");
+																	armory.setAttribute("onclick","showExtraInfro(event)");
+																	document.getElementById("init").appendChild(armory);
+																	jQuery("li img").each(function(){
+																		if( jQuery(this).attr("src") == "兵工廠.png"){
+																			jQuery(this).css("display","none");
+																		}
+																	});																	
+																}
+																});
+			
+			setInterval(getSource,取得資源速率);
+			jQuery(".container").hover(function(){
+										jQuery(".initMapDiv").css("border","5px solid red");
+										jQuery(".extraInfroTable").css("display","none");
+										jQuery(".sourceTable").show();
+										},function(){
+											jQuery(".initMapDiv").css("border","");
+											});
+			jQuery(".navbar .menu li img").on("mouseover",function(){
+													jQuery("#buildingInfo").css("display","block");
+													});
+			jQuery(".navbar .menu li img").on("mouseleave",function(){
+													jQuery("#buildingInfo").css("display","none");
+													});
+			var treasure = 0;
+			/*jQuery.ajax({
+				url:"get_treasure.php",
+				type:"post",
+				data:{playerID:playerID},
+				async:false,
+				error:function(){alert("get_enemyInfo error")},
+				success:function(str){
+						var data = JSON.parse(str);
+						data = JSON.stringify(data);
+						if(data != "{}"){
+							data = JSON.parse(data);
+							treasure = parseInt(data.treasure);
+						}
+				}
+			});*/
+			treasure = localStorage.getItem(playerID + "_treasure");
+			if(treasure){
+				treasure = parseInt(treasure);
+			}
+			else {
+				treasure = 0;
+			}
+			if(treasure == 3){
+				setTimeout(function(){
+					document.location.href = "project4.html?playerID="+playerID;
+				},2000);
+			}
+			for( i = 0 ; i < treasure ; i++){
+				jQuery("#treasure"+i+" img").attr("src","treasure.png");
+				jQuery("#treasure"+i).children().css("border","0px");
+			}
+			var BGM = document.getElementById("projectBGM");
+			BGM.volume = 0.1;
+			BGM.loop = true;
+			BGM.play();
+			select = document.getElementById("select");
+			select.volume = 0.5;
+		}
+		
+		window.addEventListener( "load", start, false );
+		
+	   </script>
+    </head>
+    <body>
+	   <table class = "title">
+			<thead>
+				<tr>
+					<th>
+						<img src = "金幣.png" style = "width: 30px; height: 30px;">
+						<span id = "money" class = "money"></span>
+					</th>
+					<th>
+						<img src = "石礦.png" style = "width: 30px; height: 30px;">
+						<span id = "stone" class = "stone"></span>
+					</th>
+					<th>
+						<img src = "木材.png" style = "width: 30px; height: 30px;">
+						<span id = "wood" class = "wood"></span>
+					</th>
+					<th>
+						<img src = "穀物.png" style = "width: 30px; height: 30px;">
+						<span id = "cereal" class = "cereal"></span>
+					</th>
+					<th>
+						<img src = "羅馬步兵.png" style = "width: 30px; height: 30px;">
+						<span id = "RomeFootSoldier" class = "RomeFootSoldier"></span>
+					</th>
+					<th>
+						<img src = "羅馬騎兵.png" style = "width: 30px; height: 30px;">
+						<span id = "RomeCavalry" class = "RomeCavalry"></span>
+					</th>
+					<th>
+						<img src = "賴達弩兵.png" style = "width: 30px; height: 30px;">
+						<span id = "RomeArcher" class = "RomeArcher"></span>
+					</th>
+				</tr>
+			</thead>
+	   </table>
+	   <div id = "init" class = "initMapDiv" ondrop="Drop(event)" ondragover="AllowDrop(event)">
+	   </div>
+	   <img id = "worldMapBtn" src = "back.png" onclick = "jumpToWorldMap()" width = 80px; height = 80px;></img>
+	   <div id = "building" class = "buildingDiv" >
+			<table id = "buildingTable" class = "buildingTable" style = "display: none;">	
+			</table>
+			<table id = "extraInfroTable" class = "extraInfroTable" style = "display: none;">
+			</table>
+	   </div>
+	   <img src = "sprite.png" width = "100px" height = "100px" onclick = "Info()" style = "position:absolute;top:0px;left:100px;">
+	   <p id = "sprite" style = "position:absolute;top:85px;left:80px;">點擊精靈以獲得提示</p>
+	   <div id = "hint"><br>
+			    提示:傳聞中寶物藏在周遭的敵人手中<br><br>
+				1.初始資源為:金礦500、食材500 、石礦500 、木材500。<br><br>
+			    2.玩家可依喜好或發展方向，升級建築物或者訓練士兵。<br><br>
+				3.升級建築物時需要消耗金礦、石礦、木材(依建築物種類與等級而不同) 。<br><br>
+				4.訓練士兵需要消耗食材、金礦(依兵種而不同) 。<br><br>
+				5.游標移致建築圖案可選擇要建造的建築物<br><br>
+				6.點選左下角的箭頭可以移動至世界地圖
+				
+	   </div>
+	   <div id = "sourceDiv" class = "sourceDiv">
+		<table id = "sourceTable" class = "sourceTable">
+			<thead><tr><th>
+			</th></tr></thead>
+			<tbody>
+				<tr><th>
+					<div id = "timeBar" class = "timeBar">
+					<span id = "糧倉升級時間" class = "糧倉升級時間"></span>
+					<span id = "糧倉升級時間條" class = "糧倉升級時間條"></span><br>
+					<span id = "兵營升級時間" class = "兵營升級時間"></span>
+					<span id = "兵營升級時間條" class = "兵營升級時間條"></span><br>
+					<span id = "木材廠升級時間" class = "木材廠升級時間"></span>
+					<span id = "木材廠升級時間條" class = "木材廠升級時間條"></span><br>
+					<span id = "石礦場升級時間" class = "石礦場升級時間"></span>
+					<span id = "石礦場升級時間條" class = "石礦場升級時間條"></span><br>
+					<span id = "皇宮升級時間" class = "皇宮升級時間"></span>
+					<span id = "皇宮升級時間條" class = "皇宮升級時間條"></span><br>
+					<span id = "倉庫升級時間" class = "倉庫升級時間"></span>
+					<span id = "倉庫升級時間條" class = "倉庫升級時間條"></span><br>
+					<span id = "市集升級時間" class = "市集升級時間"></span>
+					<span id = "市集升級時間條" class = "市集升級時間條"></span><br>
+					<span id = "兵工廠升級時間" class = "兵工廠升級時間"></span>
+					<span id = "兵工廠升級時間條" class = "兵工廠升級時間條"></span>
+					<span id = "羅馬步兵造兵"></span>
+					<span id = '羅馬步兵造兵時間'></span><br>
+					<span id = "羅馬騎兵造兵"></span>
+					<span id = '羅馬騎兵造兵時間'></span><br>
+					<span id = "羅馬弩兵造兵"></span>
+					<span id = '羅馬弩兵造兵時間'></span>
+				    </div>
+				</th></tr>
+			</tbody>
+			<tfoot>
+			</tfoot>
+		</table>
+	   </div>
+	   	<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="navbar">
+						<ul class="menu">
+							<li onmouseenter='showInfor(event)' onmouseout='hideInfro(event)'><img src = '糧倉.png' style = 'width: 100px; height: 100px;' id = '糧倉' draggable = 'true' ondragstart = 'Drag(event)'></li>
+							<li onmouseenter='showInfor(event)' onmouseout='hideInfro(event)'><img src = '兵營.png' style = 'width: 100px; height: 100px;' id = '兵營' draggable = 'true' ondragstart = 'Drag(event)'></li>
+							<li onmouseenter='showInfor(event)' onmouseout='hideInfro(event)'><img src = '木材廠.png' style = 'width: 100px; height: 100px;' id = '木材廠' draggable = 'true' ondragstart = 'Drag(event)'></li>
+							<li onmouseenter='showInfor(event)' onmouseout='hideInfro(event)'><img src = '石礦場.png' style = 'width: 100px; height: 100px;' id = '石礦場' draggable = 'true' ondragstart = 'Drag(event)'></li>
+							<li onmouseenter='showInfor(event)' onmouseout='hideInfro(event)'><img src = '皇宮.png' style = 'width: 100px; height: 100px;' id = '皇宮' draggable = 'true' ondragstart = 'Drag(event)'></li>
+							<li onmouseenter='showInfor(event)' onmouseout='hideInfro(event)'><img src = '倉庫.png' style = 'width: 100px; height: 100px;' id = '倉庫' draggable = 'true' ondragstart = 'Drag(event)'></li>
+							<li onmouseenter='showInfor(event)' onmouseout='hideInfro(event)'><img src = '市集.png' style = 'width: 100px; height: 100px;' id = '市集' draggable = 'true' ondragstart = 'Drag(event)'></li>
+							<li onmouseenter='showInfor(event)' onmouseout='hideInfro(event)'><img src = '兵工廠.png' style = 'width: 100px; height: 100px;' id = '兵工廠' draggable = 'true' ondragstart = 'Drag(event)'></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	   <div id = "buildingInfo" >
+	   </div>
+	   <audio >
+			<source src = "worldMap.mp3">
+	   </audio>
+	   <img src = "兵力背景.png" id = "兵力背景" onclick = "gameCheat()">
+		<div class = "rotation" >
+			<div class="box" id = "treasure0">
+				<div class="layer">
+					<img class = "treasure face1" src = "blank.png">
+				</div>
+				<div class="layer">
+					<img class = "treasure face2" src = "blank.png">
+				</div>
+				<div class="layer">	
+					<img class = "treasure face3" src = "blank.png">
+				</div>
+				<div class="layer">	
+					<img class = "treasure" src = "blank.png">
+				</div>
+				<div class="layer">	
+					<img class = "treasure face5" src = "blank.png">
+				</div>
+				<div class="layer">	
+					<img class = "treasure face6" src = "blank.png">
+				</div>
+			</div>
+		</div>
+		<div class = "rotation" >
+			<div class="box" id = "treasure1" src = "blank.png">
+				<div class="layer">
+					<img class = "treasure face1" src = "blank.png">
+				</div>
+				<div class="layer">
+					<img class = "treasure face2" src = "blank.png">
+				</div>
+				<div class="layer">	
+					<img class = "treasure face3" src = "blank.png">
+				</div>
+				<div class="layer">	
+					<img class = "treasure" src = "blank.png">
+				</div>
+				<div class="layer">	
+					<img class = "treasure face5" src = "blank.png">
+				</div>
+				<div class="layer">	
+					<img class = "treasure face6" src = "blank.png">
+				</div>
+			</div>
+		</div>
+		<div class = "rotation" >
+			<div class="box" id = "treasure2">
+				<div class="layer">
+					<img class = "treasure face1" src = "blank.png">
+				</div>
+				<div class="layer">
+					<img class = "treasure face2" src = "blank.png">
+				</div>
+				<div class="layer">	
+					<img class = "treasure face3" src = "blank.png">
+				</div>
+				<div class="layer">	
+					<img class = "treasure" src = "blank.png">
+				</div>
+				<div class="layer">	
+					<img class = "treasure face5" src = "blank.png">
+				</div>
+				<div class="layer">	
+					<img class = "treasure face6" src = "blank.png">
+				</div>
+			</div>
+		</div>
+		<audio id = "projectBGM" preload = "auto" >
+		    <source src = "project.mp3" type = "audio/mpeg">
+		</audio>
+		<audio id = "select" preload = "auto">
+			<source src = "select.mp3" type = "audio/mpeg">
+		</audio>
+		<img src = "volume.png" style = "position:fixed;top:0;left:0px;" height = "100px" width = "100px" onclick = "switchBGM()">
+    </body>
+</html>

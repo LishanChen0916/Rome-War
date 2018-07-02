@@ -1,0 +1,423 @@
+/* CSS for onmouseoverout.html. */
+body  							{ background-color: wheat;}
+
+.worldMapImg   					{ width:150px; 
+								  height:150px; 
+								  margin-bottom:0px;
+								  padding:0px; 
+								  box-sizing:border-box;}
+
+.initMapDiv,#hint 				{ width: 585px;
+								  height: 410px;
+								  position :relative;
+								  top:100px;
+								  left:420px;
+								  border-radius:50%;
+								}
+#hint							{ 								  
+								  font-family: 微軟正黑體;
+								  font-weight: bold;
+								  color: DarkGreen;
+								  font-size:20px;
+								  top:110px;
+								  border-radius:15px;
+								  background-color:white;
+								  display:none;
+								}								  
+div								{ float: left;}
+
+table							{ border-collapse: collapse;
+}
+								  
+table td  ,#buildingInfo		{
+								  padding: 4px;
+								  text-align: center;
+								  font-family: 微軟正黑體;
+								  font-weight: bold;
+								  color: DarkGreen;
+								  font-size:15px;
+								}
+.title{							position:relative;
+								top:20px;
+								left:360px;
+								width:700px;
+								text-align:center;
+								border-radius:10px;
+								background-color:rgba(130,130,130,0.6);
+								border: 2px solid black;
+								box-shadow: 3px 3px 5px dimgray;
+}
+
+#sprite							{
+								  font-family:微軟正黑體;
+								  font-weight: bold;
+								  color: DarkBlue;
+}						  
+.buildingTable td:hover			{ width: 200px;
+								  height: 200px;}
+								  
+.buildingDiv					{ position: relative;
+								  top: 30px;}			  
+								  
+.extraInfroTable				{ position:relative;
+								  top:30px;
+								  left:560px;
+								  width: 300px;
+								  height: 300px;
+								  z-index:2;
+								}
+#buildingInfo					{
+								  position:absolute;
+								  left:50px;
+								  top:460px;
+								  width: 350px;
+								  height: 140px;
+								  text-align:left;
+								  background-color:white;
+								  border-radius: 10px;
+								  line-height:150%;
+								  display:none;
+								}
+
+								  
+.extraInfroTable thead 			{ font-size: 40px;
+								  color: Crimson;}
+								  
+body							{ background-image: url("bg2.png");
+								  background-repeat: no-repeat;
+								  background-attachment: fixed;
+								  background-size: cover;
+								 }
+								  
+.sourceDiv						{ position:absolute;
+								  top:10px;
+								  right:-20px;
+								  width: 400px;
+								  height: 700px;
+								  padding: 30px;
+								  background-image:url("邊框.png");
+								  background-repeat: repeat-x;
+								  background-size :600px 1000px;
+								  background-position: -80px -100px;
+								}
+.sourceTable					{
+									position:relative;
+									top:60px;
+									right:-10px;
+								}			  
+.sourceTable tbody				{ color: #ff3300;
+								  font-family: Microsoft JhengHei;
+								  font-weight: bold;
+								  border-collapse: collapse;
+								  font-size: 25px;
+								}				  
+								  
+.money, .wood, .cereal, .stone,
+.RomeFootSoldier, .RomeCavalry,
+.RomeArcher						{ display: inline;
+								  position: relative;
+								  font-size:20px;
+								  top: -8px;
+								  font-size:20px;
+								}
+								  
+								  
+#步兵數量, #騎兵數量, #弩兵數量{ display: inline;
+								  position: relative;
+								  top: -8px;
+								  width: 35px;}
+								  
+#羅馬步兵造兵時間,
+#羅馬騎兵造兵時間,
+#羅馬弩兵造兵時間				{ display: inline;
+								  float: left;}
+								  
+#羅馬步兵造兵, #羅馬騎兵造兵, 	
+#羅馬弩兵造兵					{ font-weight: bold;
+								  float: left;}
+							  
+
+#produceBtn						{ position: relative;
+								  top: -8px;
+								  left: 8px;}
+
+#updateBtnImage					{ width: 40px;
+								  height: 40px;}								  
+								  
+.糧倉升級資訊, .兵營升級資訊,
+.木材廠升級資訊,.石礦場升級資訊,
+.皇宮升級資訊, .倉庫升級資訊,	
+.市集升級資訊,.兵工廠升級資訊	{ 
+								  font-size: 25px;
+								  color: DarkOrange;
+								  padding: 15px;
+								  margin: 0px;
+								  position: relative;}
+
+.糧倉資訊, .兵營資訊,
+.木材廠資訊,.石礦場資訊,
+.皇宮資訊, .倉庫資訊,	
+.市集資訊, .兵工廠資訊			{
+								  font-size: 30px;
+								  color: SaddleBrown;
+								  margin: 0px;}	
+
+.兵營造兵數量資訊, .兵營造兵資訊{ position: relative;
+								  top: -10px;
+								  font-size: 23px;
+								  font-weight: bold;
+								  color: MidnightBlue;
+								  margin: 0px;}
+								  
+#marketInfro					{ color: MidnightBlue;
+								  font-size: 23px;
+								  font-weight: bold;
+								  position: relative;
+								  left: 10px;}		
+
+#stonePurchase					{ width: 35px;
+								  position: absolute;
+								  left: 220px;
+								  top: 425px;}
+
+#woodPurchase					{ width: 35px;
+								  position: absolute;
+								  left: 220px;
+								  top: 455px;}
+
+#cerealPurchase					{ width: 35px;
+								  position: absolute;
+								  left: 220px;
+								  top: 485px;}
+
+#purchaseBtn					{ position: absolute;
+								  left: 215px;
+								  top: 510px;}								  
+								  
+#worldMap						{ position:absolute; 
+								  left:25%;
+								  width :100%; 
+								  height :100%; 
+								  overflow:auto;}
+								  
+#enemyPic						{ position:relative; 
+								  top:50px;
+								  height:500px; 
+								  width:500px;
+								  float:left;}
+								  
+#enemyCountry					{ position:relative; 
+								  top:50px;}
+								  
+#enemyImg						{ width:200px; 
+								  height:310px;}
+								  
+#attackbtn						{ position:relative; 
+								  left:295px;}
+								  
+#enemyInfoTable					{ width:340px;}
+
+#enemyInfoTable					{ height:550px;}
+
+#兵力背景						{ width: 80px;
+								  height: 80px;
+								  position: absolute;
+								  right: 0px;
+								  bottom: 0px;}
+								  
+#totalPower	, #power			{ margin: 0px;
+								  font-size: 35px;
+								  font-weight: bold;
+								  color: #666633;
+								  position: relative;
+								  left:-10px;
+								  display: inline;}
+								  
+#worldMapBtn					{ position: absolute;
+								  bottom: 0px;
+								  left: 0px;}
+.navbar:hover #糧倉	  {
+	transform:rotate(-315deg);
+}
+.navbar:hover #兵營	  {
+	transform:rotate(-270deg);
+}
+.navbar:hover #木材廠	  {
+	transform:rotate(-225deg);
+}
+.navbar:hover #石礦場	  {
+	transform:rotate(-180deg);
+}
+.navbar:hover #皇宮	  {
+	transform:rotate(-135deg);
+}
+.navbar:hover #倉庫	  {
+	transform:rotate(-70deg);
+}
+.navbar:hover #市集	  {
+	transform:rotate(-45deg);
+}
+.container{
+	position:absolute;
+	left:160px;
+	top:100px;
+}								  
+.navbar{
+		width: 150px;
+		height: 150px;
+		line-height: 150px;
+		border-radius: 50%;
+		background: #fff;
+		margin: 70px auto;
+		position: relative;
+		cursor: pointer;
+		text-align: center;
+		font-size: 1.75em;
+		font-weight: bold;
+		color: #99b977;
+		transition: 0.24s 0.2s;
+		background-image:url(建造.png);
+		background-size:cover;
+		box-shadow: 10px 10px 5px dimgray;
+		top:-20px;
+		left:-10px;
+	}
+.navbar:hover{
+	}
+.navbar .menu{
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		position: absolute;
+		top: -10px;
+		left: -130px;
+		border: 150px solid transparent;
+		cursor: default;
+		border-radius: 50%;
+		transform: scale(0);
+		transition: transform 1.4s 0.07s;
+		z-index: -1;
+	}
+.navbar:hover .menu{
+		transition: transform 0.4s 0.08s, z-index   0s  0.5s;
+		transform: scale(1);
+		z-index: 1;
+	}
+.navbar .menu li{
+		position: absolute;
+		top: -235px;
+		left: -115px;
+		transform-origin: 170px 170px;
+		transition: all 0.5s 0.1s;
+	}
+.navbar:hover .menu li{
+		transition: all 0.6s;
+	}
+.navbar .menu li img{
+		width: 45px;
+		height: 45px;
+		line-height: 45px;
+		border-radius: 50%;
+		background: #fff;
+		position: absolute;
+		font-size: 60%;
+		color: #99b977;
+		transition: 0.6s;
+		box-shadow: 10px 10px 5px dimgray;
+	}
+.navbar:hover .menu li:nth-child(1){
+		transition-delay: 0.02s;
+		transform: rotate(315deg);
+	}
+.navbar:hover .menu li:nth-child(1) a{
+		transition-delay: 0.04s;
+		transform: rotate(635deg);
+	}
+.navbar:hover .menu li:nth-child(2){
+		transition-delay: 0.04s;
+		transform: rotate(270deg);
+	}
+.navbar:hover .menu li:nth-child(2) a{
+		transition-delay: 0.08s;
+		transform: rotate(595deg);
+	}
+.navbar:hover .menu li:nth-child(3){
+		transition-delay: 0.06s;
+		transform: rotate(225deg);
+	}
+.navbar:hover .menu li:nth-child(3) a{
+		transition-delay: 0.12s;
+		transform: rotate(555deg);
+	}
+.navbar:hover .menu li:nth-child(4){
+		transition-delay: 0.08s;
+		transform: rotate(180deg);
+	}
+.navbar:hover .menu li:nth-child(4) a{
+		transition-delay: 0.16s;
+		transform: rotate(515deg);
+	}
+.navbar:hover .menu li:nth-child(5){
+		transition-delay: 0.1s;
+		transform: rotate(135deg);
+	}
+.navbar:hover .menu li:nth-child(5) a{
+		transition-delay: 0.2s;
+		transform: rotate(475deg);
+	}
+.navbar:hover .menu li:nth-child(6){
+		transition-delay: 0.12s;
+		transform: rotate(90deg);
+	}
+.navbar:hover .menu li:nth-child(6) a{
+		transition-delay: 0.24s;
+		transform: rotate(435deg);
+	}
+.navbar:hover .menu li:nth-child(7){
+		transition-delay: 0.14s;
+		transform: rotate(45deg);
+	}
+.navbar:hover .menu li:nth-child(7) a{
+		transition-delay: 0.28s;
+		transform: rotate(395deg);
+	}
+.navbar:hover .menu li:nth-child(8){
+		transition-delay: 0.16s;
+		transform: rotate(365deg);
+	}
+.navbar:hover .menu li:nth-child(8) a{
+		transition-delay: 0.32s;
+		transform: rotate(355deg);
+	}
+.navbar:hover .menu li:nth-child(9){
+		transition-delay: 0.18s;
+		transform: rotate(405deg);
+	}
+.navbar:hover .menu li:nth-child(9) a{
+		transition-delay: 0.36s;
+		transform: rotate(315deg);
+	}
+	
+.box{float:left;width: 150px;height: 150px;position: relative;transform-origin:50% 50% 25px;
+	 transform-style:preserve-3d;perspective: 0px;transition:transform 4s;transform:rotate3d(1,1,1,290deg);}
+.box:hover{transform:rotate3d(0,0,0,0deg);}
+ 
+.layer{width:50px;height: 50px;position: absolute;border:2px solid #fff;}
+ 
+.layer:nth-of-type(1){top:50px;left:50px;}
+.layer:nth-of-type(2){top:0px;left:50px;transform:rotateX(-90deg);transform-origin:bottom;}
+.layer:nth-of-type(3){top:100px;left:50px;transform:rotateX(90deg);transform-origin:top;}
+.layer:nth-of-type(4){top:50px;left:50px;transform:translateZ(50px);}
+.layer:nth-of-type(5){top:50px;left:0;transform:rotateY(90deg);transform-origin:right;}
+.layer:nth-of-type(6){top:50px;left:100px;transform:rotateY(-90deg);transform-origin:left;}
+.rotation{ width: 150px;height: 150px;transform-origin:right; transition:transform 4s;
+		   transform-style:preserve-3d;perspective: 10000px;
+		   position:relative;top:540px;right:500px; }
+
+.rotation:hover{  transform:rotateX(710deg); }
+.face1{transform:rotateZ(180deg);transform-origin:50% 50%; }
+.face2{transform:rotateX(180deg);transform-origin:50% 50% 50%;}
+.face3{transform:rotateX(180deg);transform-origin:50% 50% 50%;}
+.face5{transform:rotateX(180deg);transform-origin:50% 50% 50%;}
+.face6{transform:rotateX(180deg);transform-origin:50% 50% 50%;}	
+.treasure	{ height:50px;width:50px; }

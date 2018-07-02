@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta chartset = "utf-8">
+		<title>final project</title>
+		<link rel = "stylesheet" type = "text/css" href = "style3.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" type="text/javascript"></script>
+	<style type ="text/css">
+	</style>
+	<script>
+	 var playerHero = "";
+	 var RomeArcher = 0;
+	 var RomeSoldier = 0;
+	 var RomeCavalry = 0;
+	 var enemyArcher = 0;
+	 var enemySoldier = 0;
+	 var enemyCavalry = 0;
+	 var playerID = "ABC"
+	 var ImgID = "";
+	 var treasure = 0;
+	function getData(filename,object,myfunction)
+	{
+		 filename = filename.split("get_")[1];
+		 var str = localStorage.getItem(playerID + "_" +filename);
+		 if(!str){
+			str = "{}";
+		 }
+		 myfunction(str);
+	} 
+	 function enemyChoice(e){
+	 	$(e.currentTarget).children().css("border","0px");
+		$(".enemyArea .threeD").each(function(){
+			if(e.currentTarget == this){
+				//this.setAttribute("style","transform:rotateZ(90deg)");
+				$(this).attr("style","transform:rotateZ(90deg)");
+				$(this).css("right","300px");
+				setTimeout(function(target){
+					$(target).animate({top:'150px'});
+				},1000,e.currentTarget);
+			}
+			else{
+				$(this).hide();
+			}
+		});	
+		$(".enemyArea .threeD").attr("onmouseenter","");
+		$(".enemyArea .threeD").attr("onmouseleave","");
+		setTimeout(function(){animation()},3000);
+	}
+	function playerChoice(e){
+		$(e.currentTarget).children().css("border","0px");
+		playerHero = $(e.currentTarget).attr("id");
+		$(".playerArea .threeD").each(function(){	
+			if(e.currentTarget == this){
+				$(this).children().attr("src","cover.jpg");
+				$(this).attr("style","transform:rotateZ(90deg)");
+				$(this).css("left","305px");
+				setTimeout(function(target){
+					$(target).animate({top:'-150px'});
+				},1000,e.currentTarget);
+			}
+			else{
+				$(this).hide();
+			}
+		});	
+		$(".enemyArea .threeD").attr("onmouseenter","border(event)");
+		$(".enemyArea .threeD").attr("onmouseleave","clearborder(event)");
+		$(".playerArea .threeD").attr("onmouseenter","");
+		$(".playerArea .threeD").attr("onmouseleave","");
+		$(".enemyArea .threeD").attr("onclick","enemyChoice(event)");
+		$("#playerArcher,#playerSoldier,#playerCavalry,#enemyArcher,#enemySoldier,#enemyCavalry").hide();
+		
+	}
+	
+	function animation(){
+		$("#enemyTrick1").show();
+		$("#playerTrick1").show();
+		$(".playerArea .threeD").each(function(){
+			if($(this).css("display") == "block"){
+				$(this).attr("style","transform:rotateZ(0deg)");
+				$(this).css("left","0px");
+				$(this).css("top","0px");
+				$(this).hide();
+				$(this).children().attr("src",playerHero + "Card.png" );
+				$("#playerTrick1").css("transform","rotateZ(450deg)");
+			}
+		});
+		$(".enemyArea .threeD").each(function(){
+			if($(this).css("display") == "block"){
+				$(this).attr("style","transform:rotateZ(0deg)");
+				$(this).css("right","0px");
+				$(this).css("top","0px");	
+				$(this).hide();
+				$("#enemyTrick1").css("transform","rotateZ(-450deg)");
+			}
+		});
+		setTimeout(function(){
+						$("#playerTrick1").css("transform-origin","75% -240%");
+						$("#playerTrick1").css("transform","rotateZ(-450deg)");
+						$("#playerTrick1 Img").attr("src","cover2_H.jpg");  			//影像交換圖才會對
+						$("#enemyTrick1 Img").attr("src","cover_H.jpg");
+						$("#enemyTrick1").css("transform-origin","75% 340%");
+						$("#enemyTrick1").css("transform","rotateZ(450deg)");
+						setTimeout(function(){animate2();},5500);
+						},5000);
+
+
+	}
+	function animate2(){
+		$("#playerTrick2").show();
+		$("#enemyTrick2").show();
+		$("#playerTrick1").hide();
+		$("#enemyTrick1").hide();
+		$("img:nth-child(1)").css("transform-origin","105%");
+		$("#playerTrick2").css("transform","rotateY(-180deg)");
+		$("#enemyTrick2").css("transform","rotateY(-180deg)");
+		$("#trickImg1").css("transform","rotateY(1260deg)");
+		$("#trickImg2").css("transform","rotateY(1260deg)");
+		var random = 0;
+		$("#trickImg1").children().each(function(){						
+										random = Math.floor(Math.random()*3)
+										if($(this).attr("src") == "blank.png"){
+											switch (random){
+												case 0:
+													$(this).attr("src","archerCard.PNG");
+													break;
+												case 1:
+													$(this).attr("src","soldierCard.PNG");
+													break;
+												case 2:
+													$(this).attr("src","cavalryCard.PNG");
+													break;
+											}
+											$(this).css("width","158px");
+											$(this).css("height","232px");
+										}
+									});
+		$("#trickImg2").children().each(function(){						//player
+										if($(this).attr("src") == "blank.png"){
+											switch (playerHero){
+												case "archer":
+													$(this).attr("src","archerCard.PNG");
+													break;
+												case "soldier":
+													$(this).attr("src","soldierCard.PNG");
+													break;
+												case "cavalry":
+													$(this).attr("src","cavalryCard.PNG");
+													break;
+											}
+											$(this).css("width","170px");
+											$(this).css("height","240px");
+										}
+									});
+		setTimeout(function(){
+				$("#trickImg1").children().each(function(){
+											if($(this).attr("src") == "cover2.jpg")
+												$(this).attr("src","blank.png");
+											});
+				$("#trickImg2").children().each(function(){
+											if($(this).attr("src") == "cover.jpg")
+												$(this).attr("src","blank.png");
+											});
+				var winner = -1;
+				
+				//player Win							})
+				if( (playerHero == "archer" && random == 1) ||		//archer and soldier
+					(playerHero == "soldier" && random == 2)||		//soldier and cavalry
+					(playerHero == "cavalry" && random == 0)){		//cavalry and archer
+					winner = 0;				//player Win
+				}
+				//enemy Win
+				else if( (playerHero == "archer" && random == 2)  || //archer and cavalry
+						 (playerHero == "soldier" && random == 0) || //soldier and archer
+						 (playerHero == "cavalry" && random == 1) ){ //cavalry and soldier
+					winner = 1;				//enemy Win
+				}
+				console.log(playerHero + "," + random + "," + winner);
+				if(winner == 0){			//player Win
+						$("#playerTrick2 #trickImg2").animate({bottom:"+=400px"},"fast");
+						$("#playerTrick2 #trickImg2").animate({bottom:"-=400px"},"fast");
+				}
+				else if(winner == 1){			//enemy Win
+						$("#enemyTrick2 #trickImg1").animate({top:"+=400px"},"fast");
+						$("#enemyTrick2 #trickImg1").animate({top:"-=400px"},"fast");
+				}
+ 				setTimeout(function(){
+								var filename = "";
+								if(winner == 0){
+									switch (random){
+										case 0:
+											filename = "broken_archer.png";
+											break;
+										case 1:
+											filename = "broken_soldier.png"
+											break;
+										case 2:
+											filename = "broken_cavalry.png"	
+											break;
+									
+									}
+									$("#trickImg1").children().each(function(){
+											if($(this).attr("src") != "blank.png"){
+												$(this).attr("src",filename);
+												$(this).css("width","168px");
+												$(this).css("height","242px");
+											}
+									}).end().fadeOut("slow");
+								}
+								else if( winner == 1){
+									switch (playerHero){
+										case "archer":
+											filename = "broken_archer.png";
+											break;
+										case "soldier":
+											filename = "broken_soldier.png"
+											break;
+										case "cavalry":
+											filename = "broken_cavalry.png"	
+											break;
+									
+									}
+									$("#trickImg2").children().each(function(){
+											console.log($(this).attr("src"));
+											if($(this).attr("src") != "blank.png"){
+												$(this).attr("src",filename);
+												$(this).css("width","168px");
+												$(this).css("height","242px");
+											}
+									}).end().fadeOut("slow");
+								}
+								else{
+								setTimeout(function(){
+									$("#trickImg2").fadeOut("slow");
+									$("#trickImg1").fadeOut("slow");},1000);
+								}
+								setTimeout(function(){
+									$("#playerTrick2").hide();
+									$("#enemyTrick2").hide();
+									$("img:nth-child(1)").css("transform-origin","100%");
+									$("td img:nth-child(1)").attr("src","blank.png");
+									$(".enemyArea td:nth-child(1) img:nth-child(2)").attr("src","archerCard.png");
+									$(".enemyArea td:nth-child(2) img:nth-child(2)").attr("src","soldierCard.png");
+									$(".enemyArea td:nth-child(3) img:nth-child(2)").attr("src","cavalryCard.png");
+									$(".playerArea .threeD").show();
+									$(".enemyArea .threeD").show();
+									$(".playerArea .threeD").attr("onmouseenter","border(event)");
+									$(".playerArea .threeD").attr("onmouseleave","clearborder(event)");
+									$(".playerArea .threeD").attr("onclick","step1(event)");									
+									$(".enemyArea .threeD").attr("onclick","");						
+									$(".enemyArea .threeD").attr("onmouseenter","");
+									$(".enemyArea .threeD").attr("onmouseleave","");
+									$("#playerArcher").text(RomeArcher);
+									$("#playerSoldier").text(RomeSoldier);
+									$("#playerCavalry").text(RomeCavalry);
+									$("#enemyArcher").text(enemyArcher);
+									$("#enemySoldier").text(enemySoldier);
+									$("#enemyCavalry").text(enemyCavalry);
+									$("#playerArcher,#playerSoldier,#playerCavalry,#enemyArcher,#enemySoldier,#enemyCavalry").show();
+									var totalArcher = 0,totalSoldier = 0,totalCavalry = 0;
+									if(winner == 1){		//enemy win
+										totalArcher = RomeArcher;
+										totalSoldier = RomeSoldier;
+										totalCavalry = RomeCavalry;
+										$("#playerArcher,#playerSoldier,#playerCavalry").css("text-decoration","line-through black solid");
+										var interval = setInterval(function(){
+											if( totalArcher && totalSoldier && totalCavalry ){
+												console.log(totalArcher + "," + totalSoldier + "," + totalCavalry);
+												if( RomeArcher <= totalArcher *0.8 && RomeSoldier <= totalSoldier*0.8 && RomeCavalry <= totalCavalry*0.8 ){
+													clearInterval(interval);
+													$("#playerArcher,#playerSoldier,#playerCavalry").css("text-decoration","none");
+												}
+												else{
+													console.log(enemyArcher);
+													RomeArcher  = RomeArcher -  5;
+													RomeSoldier = RomeSoldier -  5;
+													RomeCavalry = RomeCavalry -  5;
+													$("#playerArcher").text(RomeArcher);
+													$("#playerSoldier").text(RomeSoldier);
+													$("#playerCavalry").text(RomeCavalry);
+												}
+											}
+											else clearInterval(interval);
+										},10);
+									}
+									else if(winner == 0){		//playerWin
+										totalArcher = enemyArcher;
+										totalSoldier = enemySoldier;
+										totalCavalry = enemyCavalry;
+										$("#enemyArcher,#enemySoldier,#enemyCavalry").css("text-decoration","line-through black solid");
+										var interval = setInterval(function(){
+											if( totalArcher && totalSoldier && totalCavalry){	
+												if( enemyArcher <= totalArcher *0.8 && enemySoldier <= totalSoldier*0.8 && enemyCavalry <= totalCavalry*0.8 ){
+													clearInterval(interval);
+													$("#enemyArcher,#enemySoldier,#enemyCavalry").css("text-decoration","none");
+												}
+												else{
+													console.log(enemyArcher);												
+													enemyArcher  = enemyArcher -  5;
+													enemySoldier = enemySoldier -  5;
+													enemyCavalry = enemyCavalry -  5;
+													$("#enemyArcher").text(enemyArcher);
+													$("#enemySoldier").text(enemySoldier);
+													$("#enemyCavalry").text(enemyCavalry);
+												}
+											}
+											else clearInterval(interval);
+										},10);									
+									}
+								},2000)
+				},1000);
+		
+		},6500);
+	}
+	function checkZero(){				
+		console.log("checkZero");	
+		var count = [0,0]	//count[0]:player,count[1]:enemy
+		if( $("#playerArcher").text() <= 0){
+			count[0]++;
+			$("#playerArcher").text(0);
+			$(".playerArea .threeD img").each(function(){
+					if( $(this).attr("src") == "archerCard.png" ){
+						$(this).attr("src","broken_archer.png");
+						setTimeout(function(x){
+									$(x).parent().fadeOut("slow",function(){
+										$(this).css("display","block");
+										$(this).css("visibility","hidden");
+									});
+									$("#playerArcher").fadeOut("slow");
+									
+						},1000,this);
+					}
+			});
+
+		}
+		if( $("#playerSoldier").text() <= 0){
+			count[0]++;
+			$("#playerSoldier").text(0);
+			$(".playerArea .threeD img").each(function(){
+					if( $(this).attr("src") == "soldierCard.png" ){
+						$(this).attr("src","broken_soldier.png");
+						setTimeout(function(x){
+									$(x).parent().fadeOut("slow",function(){
+										$(this).css("display","block");
+										$(this).css("visibility","hidden");
+									});
+									$("#playerSoldier").fadeOut("slow");
+						},1000,this);
+					}
+			});
+		}
+		if( $("#playerCavalry").text() <= 0){
+			count[0]++;
+			$("#playerCavalry").text(0);
+			$(".playerArea .threeD img").each(function(){
+					if( $(this).attr("src") == "cavalryCard.png" ){
+						$(this).attr("src","broken_cavalry.png");
+						setTimeout(function(x){
+									$(x).parent().fadeOut("slow",function(){
+										$(this).css("display","block");
+										$(this).css("visibility","hidden");
+									});
+									$("#playerCavalry").fadeOut("slow");
+						},1000,this);
+					}
+			});
+		}
+		if( $("#enemyArcher").text() <= 0){
+			count[1]++;
+			$("#enemyArcher").text(0);
+			$(".enemyArea .threeD img").each(function(){
+					if( $(this).attr("src") == "archerCard.png" ){
+						$(this).attr("src","broken_archer.png");
+						setTimeout(function(x){
+									$(x).parent().fadeOut("slow",function(){
+										$(this).css("display","block");
+										$(this).css("visibility","hidden");
+									});
+									$("#enemyArcher").fadeOut("slow");
+						},1000,this);
+					}
+			});
+		}
+		if( $("#enemySoldier").text() <= 0){
+			count[1]++;
+			$("#enemySoldier").text(0);
+			$(".enemyArea .threeD img").each(function(){
+					if( $(this).attr("src") == "soldierCard.png" ){
+						$(this).attr("src","broken_soldier.png");
+						setTimeout(function(x){
+									$(x).parent().fadeOut("slow",function(){
+										$(this).css("display","block");
+										$(this).css("visibility","hidden");
+									});
+									$("#enemySoldier").fadeOut("slow");
+						},1000,this);
+					}
+			});
+		}
+		if( $("#enemyCavalry").text() <= 0){
+			count[1]++;
+			$("#enemyCavalry").text(0);
+			$(".enemyArea .threeD img").each(function(){
+					if( $(this).attr("src") == "cavalryCard.png" ){
+						$(this).attr("src","broken_cavalry.png");
+						setTimeout(function(x){
+									$(x).parent().fadeOut("slow",function(){
+										$(this).css("display","block");
+										$(this).css("visibility","hidden");
+									});
+									$("#enemyCavalry").fadeOut("slow");
+						},1000,this);
+					}
+			});		
+		}
+		return count;
+	}
+	function update(filename,object){
+			/*$.ajax({
+				url:filename, 			
+				data:object,
+				method:"POST",
+				async:false,
+				error:function(str){alert(str);}
+			});	*/
+			object = JSON.stringify(object);
+			filename = filename.split("update_")[1];
+			localStorage.setItem(playerID + "_" + filename,object);
+	}
+	function checkWin(){
+		var count = checkZero();
+		console.log("count:"+count);
+		if (  count[1] == 3 ){
+			/*$.ajax({
+				url:"update_treasure.php",
+				type:"post",
+				data:{playerID:playerID,treasure:treasure+1},
+				async:false,
+				error:function(){alert("get_enemyInfo error")}
+			});*/
+			localStorage.setItem(playerID + "_treasure",treasure+1);
+			var random = Math.floor(Math.random()*8+1);
+			/*update_data = {playerID:playerID,ImgID:ImgID,filename:"wd"+random+".gif"};
+			update("update_world_map.php",update_data);		*/
+			localStorage.setItem(  playerID + "_" +  ImgID ,"wd"+random+".gif" );
+																		//將修改後的圖片資料存入資料庫
+			/*$.ajax({													//將enemylist中的敵人資料刪除
+				url:"delete_enemy.php",
+				data:{playerID:playerID,ImgID:ImgID},
+				method:"POST",
+				async:false,
+				error:function(){alert("error")}
+			});*/
+			update_data = {playerID:playerID,soldier:RomeSoldier,cavalry:RomeCavalry,archer:RomeArcher};
+			update("update_soldier.php",update_data);
+			setTimeout(function(){
+				$("#result").show(function(){
+					setTimeout(function(){document.location.href = "project.html?playerID="+playerID;},5000);
+				})
+			},4000);
+			return 0;
+		}
+		else if( count[0] == 3 ){
+			$("#result p:nth-child(1)").text("Sorry! You Lose !!");
+			$("#result").css("right","+=150px");
+			update_data = {playerID:playerID,soldier:RomeSoldier,cavalry:RomeCavalry,archer:RomeArcher};
+			update("update_soldier.php",update_data);
+			setTimeout(function(){
+				$("#result").show(function(){
+					setTimeout(function(){document.location.href = "project.html?playerID="+playerID;},5000);
+				})
+			},4000);		
+			return 1;
+		}
+		else {
+			return -1;	
+		}
+		
+	}
+	function sub(a,id){
+		a[0] =  parseInt(a[0]);
+		a[1] =  parseInt(a[1]);	
+		var x = a[0];	//attacker
+		var y = a[1];	//attacked
+		if(x >= y){
+			var interval = setInterval(async function(){
+				if( a[1] > 0 ){
+					a[1] =  a[1] - 5;
+					$("#"+id).css("text-decoration","line-through");
+					switch(id){
+						case "archer":
+							$("#playerArcher").text(a[1]);
+							RomeArcher = a[1];
+							break;
+						case "soldier":
+							$("#playerSoldier").text(a[1]);
+							RomeSoldier = a[1];							
+							break;
+						case "cavalry":
+							$("#playerCavalry").text(a[1]);
+							RomeCavalry = a[1];
+							break;
+						case "archerE":
+							$("#enemyArcher").text(a[1]);
+							enemyArcher = a[1];
+							break;
+						case "soldierE":
+							$("#enemySoldier").text(a[1]);
+							enemySoldier = a[1]
+							break;
+						case "cavalryE":
+							$("#enemyCavalry").text(a[1]);
+							enemyCavalry = a[1];
+							break;							
+					}
+				}
+				else{
+					clearInterval(interval);
+					switch(id){
+						case "archer":
+							$("#playerArcher").css("text-decoration","none");
+							break;
+						case "soldier":
+							$("#playerSoldier").css("text-decoration","none");
+							break;
+						case "cavalry":
+							$("#playerCavalry").css("text-decoration","none");
+							break;
+						case "archerE":
+							$("#enemyArcher").css("text-decoration","none");
+							break;
+						case "soldierE":
+							$("#enemySoldier").css("text-decoration","none");
+							break;
+						case "cavalryE":
+							$("#enemyCavalry").css("text-decoration","none");
+							break;							
+					}
+					var flag = checkWin();
+					setTimeout(function(){	
+									switch(id){
+										case "archer":case "soldier":case "cavalry":
+											$(".enemyArea .threeD").attr("onclick","");
+											$(".enemyArea .threeD").attr("onmouseenter","");
+											$(".enemyArea .threeD").attr("onmouseleave","");											
+											$(".playerArea .threeD").attr("onclick","step1(event)");
+											$(".playerArea .threeD").attr("onmouseenter","border(event)");
+											$(".playerArea .threeD").attr("onmouseleave","clearborder(event)");		
+											break;
+										case "archerE":case "soldierE":case "cavalryE":
+											if(flag != 0)step3();
+											break;
+									}
+							},2000);
+				}
+			},2);
+		}
+		else {
+			var interval = setInterval(function(){
+				if( a[1] > (y - x) ){
+					console.log(RomeArcher);
+					a[1] = a[1] - 5;
+					$("#"+id).css("text-decoration","line-through");
+					switch(id){
+						case "archer":
+							$("#playerArcher").text(a[1]);
+							RomeArcher = a[1];
+							break;
+						case "soldier":
+							$("#playerSoldier").text(a[1]);
+							RomeSoldier = a[1];
+							break;
+						case "cavalry":
+							$("#playerCavalry").text(a[1]);
+							RomeCavalry = a[1];
+							break;
+						case "archerE":
+							$("#enemyArcher").text(a[1]);
+							enemyArcher = a[1];
+							break;
+						case "soldierE":
+							$("#enemySoldier").text(a[1]);
+							enemySoldier = a[1];
+							break;
+						case "cavalry":
+							$("#enemyCavalry").text(a[1]);
+							enemyCavalry = a[1];
+							break;							
+					}
+				}
+				else{
+					clearInterval(interval);
+					$("#"+id).css("text-decoration","none");
+					setTimeout(function(){	
+									switch(id){
+										case "archer":case "soldier":case "cavalry":
+											$(".enemyArea .threeD").attr("onclick","");
+											$(".enemyArea .threeD").attr("onmouseenter","");
+											$(".enemyArea .threeD").attr("onmouseleave","");	
+											$(".playerArea .threeD").attr("onclick","step1(event)");
+											$(".playerArea .threeD").attr("onmouseenter","border(event)");
+											$(".playerArea .threeD").attr("onmouseleave","clearborder(event)");		
+											break;
+										case "archerE":case "soldierE":case "cavalryE":
+											step3();
+											break;
+									}
+							},2000);
+				}
+			},2);			
+		}
+		
+	}
+	function step4(e){
+		console.log("step4");
+		var attack = [0,0];
+		var random = Math.floor(Math.random()*3);
+		$(".enemyArea .threeD img").css("border","");
+		$(".enemyArea .threeD").attr("onmouseenter","");
+		$(".enemyArea .threeD").attr("onmouseleave","");
+		//document.getElementsByClassName("enemyArea")[0].addEventListener("mouseover",arrow,true);
+		console.log(playerHero + "E");
+		if(random == 0){
+			console.log(playerHero); 
+			 switch(playerHero){
+				case "archer":
+					$(".enemyArea .threeD").each(function(){
+						console.log($(this).attr("id"));
+						if( $(this).attr("id")  == (playerHero + "E") ){
+							$(this).animate({top:"+=400px"});
+							$(this).animate({top:"-=400px"},async function(){
+												attack[0] = enemyArcher;
+												attack[1] = RomeArcher;
+												await sub(attack,"archer");
+												});
+						}		
+					});
+					break;
+				case "soldier":
+					$(".enemyArea .threeD").each(function(){
+						if( $(this).attr("id")  == (playerHero + "E") ){
+							$(this).animate({top:"+=400px",left:"-=300px"});
+							$(this).animate({top:"-=400px",left:"+=300px"},function(){
+												attack[0] = enemySoldier;
+												attack[1] = RomeArcher;
+												sub(attack,"archer");
+												});
+						}
+					});
+					break;
+				case "cavalry":
+					$(".enemyArea .threeD").each(function(){
+						if( $(this).attr("id")  == (playerHero + "E") ){
+							$(this).animate({top:"+=400px",left:"-=600px"});
+							$(this).animate({top:"-=400px",left:"+=600px"},async function(){
+												attack[0] = enemyCavalry;
+												attack[1] = RomeArcher;
+												await sub(attack,"archer");
+												});
+						}		
+					});
+					break;
+			 }
+		}
+		else if (random == 1){
+			 switch(playerHero){
+				case "archer":
+					$(".enemyArea .threeD").each(function(){
+						if( $(this).attr("id")  == (playerHero + "E") ){
+							$(this).animate({top:"+=400px",left:"+=300px"});
+							$(this).animate({top:"-=400px",left:"-=300px"},async function(){
+												attack[0] = enemyArcher;
+												attack[1] = RomeSoldier;
+												await sub(attack,"soldier");
+												});
+						}		
+					});
+					break;
+				case "soldier":
+					$(".enemyArea .threeD").each(function(){
+						if( $(this).attr("id")  == (playerHero + "E") ){
+							$(this).animate({top:"+=400px"});
+							$(this).animate({top:"-=400px"},async function(){
+												attack[0] = enemySoldier;
+												attack[1] = RomeSoldier;
+												await sub(attack,"soldier");
+												});
+						}		
+					});
+					break;
+				case "cavalry":
+					$(".enemyArea .threeD").each(function(){
+						if( $(this).attr("id")  == (playerHero + "E") ){
+							$(this).animate({top:"+=400px",left:"-=300px"});
+							$(this).animate({top:"-=400px",left:"+=300px"},async function(){
+												attack[0] = enemyCavalry;
+												attack[1] = RomeSoldier;
+												await sub(attack,"soldier");
+												});
+						}		
+					});
+					break;
+			 }
+		}
+		else if (random == 2){
+			 switch(playerHero){
+				case "archer":
+					$(".enemyArea .threeD").each(function(){
+						if( $(this).attr("id")  == (playerHero + "E") ){
+							$(this).animate({top:"+=400px",left:"+=600px"});
+							$(this).animate({top:"-=400px",left:"-=600px"},async function(){
+												attack[0] = enemyArcher;
+												attack[1] = RomeCavalry;
+												await sub(attack,"cavalry");
+												});
+						}		
+					});
+					break;
+				case "soldier":
+					$(".enemyArea .threeD").each(function(){
+						if( $(this).attr("id")  == (playerHero + "E") ){
+							$(this).animate({top:"+=400px",left:"+=300px"});
+							$(this).animate({top:"-=400px",left:"-=300px"},async function(){
+												attack[0] = enemySoldier;
+												attack[1] = RomeCavalry;
+												await sub(attack,"cavalry");
+												});
+						}		
+					});
+					break;
+				case "cavalry":
+					$(".enemyArea .threeD").each(function(){
+						if( $(this).attr("id")  == (playerHero + "E") ){
+							$(this).animate({top:"+=400px"});
+							$(this).animate({top:"-=400px"},async function(){
+												attack[0] = enemyCavalry;
+												attack[1] = RomeCavalry;
+												await sub(attack,"cavalry");
+												});
+						}		
+					});
+					break;
+			 }
+		}
+		
+	}
+	
+	function step3(){
+		do{
+			var rand = Math.floor( Math.random()*3 );
+			var id = "";
+			switch ( rand ){
+				case 0:
+					playerHero = "archer";
+					id = "enemyArcher";
+					break;
+				case 1:
+					playerHero = "soldier";
+					id = "enemySoldier";
+					break;
+				case 2:
+					playerHero = "cavalry";
+					id = "enemyCavalry";
+					break;
+			}
+		}
+		while( !parseInt( $( "#"+id ).text() ) );
+		console.log($( "#"+id ).text());
+		console.log("after while");
+		step4();
+	}
+	function step2(e){
+		var x = parseInt(e.clientX);
+		var y = parseInt(e.clientY);
+		var attack = [0,0];
+		$(".playerArea .threeD img").css("border","");		
+		$(".enemyArea .threeD").attr("onmouseenter","");
+		$(".enemyArea .threeD").attr("onmouseleave","");
+		//document.getElementsByClassName("enemyArea")[0].addEventListener("mouseover",arrow,true);
+		if(e.currentTarget.id == "archerE"){
+			 switch(playerHero){
+				case "archer":
+					$(".playerArea .threeD").each(function(){
+						if( $(this).attr("id")  == playerHero ){
+							$(this).animate({top:"-=400px"});
+							$(this).animate({top:"+=400px"},async function(){
+												attack[0] = RomeArcher;
+												attack[1] = enemyArcher;
+												await sub(attack,"archerE");
+											});
+						}		
+					});
+					break;
+				case "soldier":
+					$(".playerArea .threeD").each(function(){
+						if( $(this).attr("id")  == playerHero ){
+							$(this).animate({top:"-=400px",left:"-=300px"});
+							$(this).animate({top:"+=400px",left:"+=300px"},async function(){
+												attack[0] = RomeSoldier;
+												attack[1] = enemyArcher;
+												await sub(attack,"archerE");
+											});
+						}		
+					});
+					break;
+				case "cavalry":
+					$(".playerArea .threeD").each(function(){
+						if( $(this).attr("id")  == playerHero ){
+							$(this).animate({top:"-=400px",left:"-=600px"});
+							$(this).animate({top:"+=400px",left:"+=600px"},async function(){
+												attack[0] = RomeCavalry;
+												attack[1] = enemyArcher;
+												await sub(attack,"archerE");
+											});
+						}		
+					});
+					break;
+			 }
+		}
+		else if (e.currentTarget.id == "soldierE"){
+			 switch(playerHero){
+				case "archer":
+					$(".playerArea .threeD").each(function(){
+						if( $(this).attr("id")  == playerHero ){
+							$(this).animate({top:"-=400px",left:"+=300px"});
+							$(this).animate({top:"+=400px",left:"-=300px"},async function(){
+												attack[0] = RomeArcher;
+												attack[1] = enemySoldier;
+												await sub(attack,"soldierE");
+											});
+						}		
+					});
+					break;
+				case "soldier":
+					$(".playerArea .threeD").each(function(){
+						if( $(this).attr("id")  == playerHero ){
+							$(this).animate({top:"-=400px"});
+							$(this).animate({top:"+=400px"},async function(){
+												attack[0] = RomeSoldier;
+												attack[1] = enemySoldier;
+												await sub(attack,"soldierE");
+											});
+						}		
+					});
+					break;
+				case "cavalry":
+					$(".playerArea .threeD").each(function(){
+						if( $(this).attr("id")  == playerHero ){
+							$(this).animate({top:"-=400px",left:"-=300px"});
+							$(this).animate({top:"+=400px",left:"+=300px"},async function(){
+												attack[0] = RomeCavalry;
+												attack[1] = enemySoldier;
+												await sub(attack,"soldierE");
+											});
+						}		
+					});
+					break;
+			 }
+		}
+		else if (e.currentTarget.id == "cavalryE"){
+			 switch(playerHero){
+				case "archer":
+					$(".playerArea .threeD").each(function(){
+						if( $(this).attr("id")  == playerHero ){
+							$(this).animate({top:"-=400px",left:"+=600px"});
+							$(this).animate({top:"+=400px",left:"-=600px"},async function(){
+												attack[0] = RomeArcher;
+												attack[1] = enemyCavalry;
+												await sub(attack,"cavalryE");
+											});
+						}		
+					});
+					break;
+				case "soldier":
+					$(".playerArea .threeD").each(function(){
+						if( $(this).attr("id")  == playerHero ){
+							$(this).animate({top:"-=400px",left:"+=300px"});
+							$(this).animate({top:"+=400px",left:"-=300px"},async function(){
+												attack[0] = RomeSoldier;
+												attack[1] = enemyCavalry;
+												await sub(attack,"cavalryE");
+											});
+						}
+					});
+					break;
+				case "cavalry":
+					$(".playerArea .threeD").each(function(){
+						if( $(this).attr("id")  == playerHero ){
+							$(this).animate({top:"-=400px"});
+							$(this).animate({top:"+=400px"},async function(){
+												attack[0] = RomeCavalry;
+												attack[1] = enemyCavalry;
+												await sub(attack,"cavalryE");
+											});
+						}		
+					});
+					break;
+			 }
+		}
+		
+	}
+	function step1(e){
+		switch ( $(e.target).attr("src") ){
+			case "archerCard.png":
+				playerHero = "archer";
+				break;
+			case "soldierCard.png":
+				playerHero = "soldier";
+				break;
+			case "cavalryCard.png":
+				playerHero = "cavalry";
+				break;
+		}
+		console.log("step1");
+		$(".enemyArea .threeD img").css("border","");	
+		$(".enemyArea .threeD").attr("onclick","step2(event)");		
+		$(".enemyArea .threeD").attr("onmouseenter","border(event)");
+		$(".enemyArea .threeD").attr("onmouseleave","clearborder(event)");
+		$(".playerArea .threeD").attr("onmouseenter","");
+		$(".playerArea .threeD").attr("onmouseleave","");
+		$(".playerArea .threeD").attr("onclick","");	
+	}
+	function border(event){
+		select.play();
+		$(event.currentTarget).children().css("border","5px solid red");
+	}
+	function clearborder(event){
+		$(event.currentTarget).children().css("border","0px");
+	}
+	function prepage(){
+		document.location.href = "project2.html?playerID="+playerID;
+	}
+	function switchBGM(){
+		var BGM = document.getElementById("worldMapBGM");
+		if(BGM.paused)	BGM.play();
+		else BGM.pause();
+	}
+	function Info(){
+		$("#hint").toggle();
+		$("img").each(function(){
+			if( $(this).attr("src") == "sprite.png"){
+				$(this).toggle();
+			}
+		});
+		$("#sprite").toggle();
+	}
+	$(function(){
+		var url = location.href;													
+		var temp = url.split("project3.html?playerID=");													
+		temp = temp[1].split("&ImgID=");
+		playerID  = temp[0];
+		ImgID = temp[1];
+		$(".playerArea .threeD").attr("onmouseenter","border(event)");
+		$(".playerArea .threeD").attr("onmouseleave","clearborder(event)");
+		getData("get_soldier.php",{playerID:playerID,ImgID:ImgID},function(str){
+													var data = JSON.parse(str);
+													RomeArcher = data.archer;
+													RomeSoldier = data.soldier;
+													RomeCavalry = data.cavalry;
+												});
+		/*$.ajax({
+			url:"get_soldier.php",
+			type:"post",
+			data:{playerID:playerID},
+			async:false,
+			error:function(){alert("get_soldier error")},
+			success:function(str){
+				var data = JSON.parse(str);
+				RomeArcher = data.archer;
+				RomeSoldier = data.soldier;
+				RomeCavalry = data.cavalry;
+			}
+		});*/
+		console.log(playerID);
+		console.log(ImgID);
+		/*getData("get_enemy_soldier.php",{playerID:playerID,ImgID:ImgID},function(str){
+														var data = JSON.parse(str);
+														enemyArcher = data.archer;
+														enemySoldier = data.soldier;
+														enemyCavalry = data.cavalry;
+													});*/
+		var random = Math.floor(Math.random()*3);
+		switch(random){	
+			case 0:
+				enemyCavalry = 500;
+				enemySoldier = 1500;
+				enemyArcher  = 1000;
+				break;
+			case 1:
+				enemyCavalry = 500;
+				enemySoldier = 1500;
+				enemyArcher  = 1000;
+				break;
+			case 2:
+				enemyCavalry = 500;
+				enemySoldier = 1500;
+				enemyArcher  = 1000;
+				break;
+		}
+		/*$.ajax({
+			url:"get_enemyInfo.php",
+			type:"post",
+			data:{playerID:playerID,ImgID:ImgID},
+			async:false,
+			error:function(){alert("get_enemyInfo error")},
+			success:function(str){
+				var data = JSON.parse(str);
+				enemyArcher = data.archer;
+				enemySoldier = data.soldier;
+				enemyCavalry = data.cavalry;
+			}
+		});*/
+		/*
+		$.ajax({
+			url:"get_treasure.php",
+			type:"post",
+			data:{playerID:playerID},
+			async:false,
+			error:function(){alert("get_enemyInfo error")},
+			success:function(str){
+					var data = JSON.parse(str);
+					data = JSON.stringify(data);
+					if(data != "{}"){
+						data = JSON.parse(data);
+						treasure = parseInt(data.treasure);
+					}
+			}
+		});*/
+		treasure = localStorage.getItem( playerID + "_treasure" );
+		if(treasure){
+			treasure = parseInt(treasure);
+		}
+		else treasure = 0;
+		$("#playerArcher,#playerSoldier,#playerCavalry,#enemyArcher,#enemySoldier,#enemyCavalry").hide();
+		var BGM = document.getElementById("worldMapBGM");
+		BGM.volume = 0.1;
+		BGM.loop = true;
+		BGM.play();
+		select = document.getElementById("select");
+		select.volume = 0.5;
+	});
+	</script>
+	</head>
+	<body>
+	<img src = "enemy1.png" id = "enemyImg">
+	<div class = "enemyArea" align = "center">	
+		<table>
+			<tr>
+				<td>
+					<div class ="threeD" id = "archerE">
+						<img src = "cover2.jpg">
+						<img src = "cover2.jpg">
+					</div>
+					<p id = "enemyArcher">123</p>
+				</td>
+				<td>
+					<div class ="threeD" id = "soldierE">
+						<img src ="cover2.jpg">
+						<img src = "cover2.jpg">
+					</div>
+					<p id = "enemySoldier">456</p>
+				</td>
+				<td>
+					<div class ="threeD" id = "cavalryE">
+						<img src = "cover2.jpg">
+						<img src = "cover2.jpg">
+					</div>
+					<p id = "enemyCavalry">789</p>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div id = "enemyTrick1" class = "threeD" style = "position:absolute; left:480px; top:196px;display:none;">
+		<img src = "cover2_H.jpg" class ="lyingCard">
+		<img src = "cover2_H.jpg" class ="lyingCard">
+	</div>
+	<div id = "playerTrick1" class = "threeD" style = "position:absolute; left:480px; top:444px;display:none;" >
+		<img src = "cover_H.jpg" class ="lyingCard">
+		<img src = "cover_H.jpg" class ="lyingCard">
+	</div>
+	<div id = "playerTrick2" style = "position:absolute; right:110px; bottom:10px; display:none;">
+		<div id = "trickImg2">
+			<img src = "cover.jpg">					
+			<img src = "blank.png" >	
+		</div>
+	</div>
+	<div id = "enemyTrick2" style = "position:absolute; right:110px; top:0px; display:none;" >
+		<div id = "trickImg1">
+			<img src = "cover2.jpg">	
+			<img src = "blank.png">		
+		</div>
+	</div>
+    <img src = "sprite.png" width = "100px" height = "100px" onclick = "Info()" style = "position:absolute;top:0px;left:100px;display:none;">
+    <p id = "sprite" style = "position:absolute;top:85px;left:80px;display:none;z-index:2px;">click to get hints</p>
+	<div id = "hint" >
+	<p align = "center">[Rules]</p>
+	<p>
+	I First stage:<br>
+	&nbsp;&nbsp;&nbsp;&nbsp;1.First, you can choose one of your cards which representing archer,soldier,and cavalry respectively.<br>
+	&nbsp;&nbsp;&nbsp;&nbsp;2.Second, choosing one of cover card in the opposite.<br>
+	After Shuffling, if anyone lose this stage , his soldiers will reduce by 20%.<br>
+	(priority: soldier > cavalry, cavalry > archer, archer > soldier )<br><br>
+	II Second stage:<br>
+	&nbsp;&nbsp;&nbsp;&nbsp;step 1: Player choose the attacker <span>[Notice]:Choosing the card after you see the red border around the card </span><br>
+	&nbsp;&nbsp;&nbsp;&nbsp;step 2:	Player choose the enemy's card to attack<br>
+	&nbsp;&nbsp;&nbsp;&nbsp;step 3:	Enemy will attack automatically<br>
+	&nbsp;&nbsp;&nbsp;&nbsp;step 4:	Repeat 1~4, until anyone who loses the game.<br>
+	<span id = "agreebtn" onclick = "Info()">I know</span>
+	</p>
+	</div>
+	<div id = "result" >
+		<p >Congratulations! You Win!!</p>
+		<p width = "400px">to be continuous after 5 seconds...</p>
+	</div>
+	<div class = "playerArea" align = "center">
+		<table>
+			<tr>
+				<td>
+					<p id = "playerArcher">123</p>
+					<div class ="threeD" id = "archer" onclick = "playerChoice(event)">
+						<img src ="blank.png">
+						<img class = "playerCard" src = "archerCard.png">
+					</div>
+				</td>
+				<td>
+					<p id = "playerSoldier">456</p>
+					<div class ="threeD" id = "soldier" onclick = "playerChoice(event)" >
+						<img src ="blank.png" >					
+						<img class = "playerCard" src = "soldierCard.png">
+					</div>
+				</td>
+				<td>
+					<p id = "playerCavalry">789</p>
+					<div class ="threeD" id = "cavalry" onclick = "playerChoice(event)">
+						<img src ="blank.png" >						
+						<img class = "playerCard" src = "cavalryCard.png">
+					</div>
+				</td>
+			<tr>
+		</table>	
+	</div>
+	<audio id = "worldMapBGM" preload = "auto" >
+		<source src = "worldMap.mp3" type = "audio/mpeg">
+	</audio>
+	<audio id = "select" preload = "auto">
+		<source src = "select.mp3" type = "audio/mpeg">
+	</audio>
+	<img src = "volume.png" style = "position:fixed;top:0px;left:0px;" height = "100px" width = "100px" onclick = "switchBGM()">
+	<img id = "backbtn" src = "back.png" onclick = "prepage()" width = 80px; height = 80px;></img>
+	</body>
+</html>

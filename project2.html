@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+
+<!-- Fig. 13.7: focusblur.html -->
+<!-- Demonstrating the focus and blur events. -->
+<html>
+   <head>
+		<meta charset = "utf-8">
+        <title>final project</title>
+        <link rel = "stylesheet" type = "text/css" href = "style2.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" type="text/javascript"></script>
+		<script>
+		var num= 0 ;
+		var imgNum = 0;
+		var size = 25;
+		var div;
+		var resourceAmount = {"money":0,"stone":0,"wood":0,"cereal":0};
+		var numOfSoldier = { "enemySoldier":0,"enemyArcher":0,"enemyCavalry":0 };
+		var enemySoldierInfo = ["enemySoldier","enemyArcher","enemyCavalry"];
+		var playerID = "ABC";
+		var resourceImg = ["金幣","石礦","木材","穀物"];
+		var resourceInfo = ["money","stone","wood","cereal"];
+		var enemySoldierImg = ["賴達步兵","賴達弩兵","賴達騎兵"]
+		var update_data = {};
+		var map;
+		var control = 1;
+		var select;
+		function createNewNode(){
+			var newNode = document.createElement("img");
+			var nodeId = "worldMap_" + imgNum;
+			newNode.setAttribute("id",nodeId);
+			newNode.setAttribute("class","worldMapImg");
+			return newNode;
+		}
+	
+		function createTable(size){
+			for(var i = 0; i<size ; i++){
+				var newImg = createNewNode();
+				div.appendChild(newImg);
+				imgNum++;
+			}
+		}
+		function getEnemyPower(id){
+			var enemyCavalry = 0;
+			var enemySoldier = 0;
+			var enemyArcher = 0;
+			getData("get_enemyInfo.php",{playerID:playerID,ImgID:id},function(str){		//從資料庫中取出enemyCavalry,enemySoldier,enemyArcher
+																							//console.log(str);		//check database回傳的訊息
+																							var data = JSON.parse(str);
+																							enemyCavalry = parseInt(data.cavalry);
+																							enemySoldier = parseInt(data.soldier);
+																							enemyArcher  = parseInt(data.archer);
+																						});
+			return enemyCavalry*50 + enemySoldier*20 + enemyArcher*25;
+		}
+		
+		function getRomePower(){
+			var RomeCavalry = 0;
+			var RomeFootSoldier = 0;
+			var RomeArcher = 0;
+			getData("get_soldier.php",{playerID:playerID},function(str){	//從資料庫中取出RomeCavalr,RomeFootSoldier,RomeArcher
+										//console.log(str);		//check database 回傳的訊息
+										var data = JSON.parse(str);
+										RomeCavalry = parseInt(data.cavalry);
+										RomeFootSoldier = parseInt(data.soldier);
+										RomeArcher = parseInt(data.archer);
+									});
+			return RomeCavalry*50 + RomeFootSoldier*20 + RomeArcher*25;
+		}
+		function after_attack(event){
+			var enemyCavalry = 0;
+			var enemySoldier = 0;
+			var enemyArcher = 0;
+			getData("get_enemyInfo.php",{playerID:playerID,ImgID:event.target.className},function(str){		//從資料庫中取出enemyCavalry,enemySoldier,enemyArcher
+																							//console.log(str);		//check database回傳的訊息
+																							var data = JSON.parse(str);
+																							enemyCavalry = parseInt(data.cavalry);
+																							enemySoldier = parseInt(data.soldier);
+																							enemyArcher  = parseInt(data.archer);
+																						});
+			var enemyPower = enemyCavalry*50 + enemySoldier*20 + enemyArcher*25;
+			var RomeCavalry = 0;
+			var RomeFootSoldier = 0;
+			var RomeArcher = 0;
+
+			getData("get_soldier.php",{playerID:playerID},function(str){	//從資料庫中取出RomeCavalr,RomeFootSoldier,RomeArcher
+													//console.log(str);		//check database 回傳的訊息
+													var data = JSON.parse(str);
+													RomeCavalry = parseInt(data.cavalry);
+													RomeFootSoldier = parseInt(data.soldier);
+													RomeArcher = parseInt(data.archer);
+												});
+			var myPower = RomeCavalry*50 + RomeFootSoldier*20 + RomeArcher*25;
+			var ratio = enemyPower/myPower;
+			//setTimeout(function(){},5000);				//倒數計時條
+			
+			if( enemyPower >= myPower ){				//輸
+				RomeCavalry = 0;						//將自己兵力清空
+				RomeFootSoldier = 0;
+				RomeArcher  = 0;
+				enemyCavalry = Math.floor(enemyCavalry - ( enemyCavalry * ( 1 / ratio ) ));
+				enemySoldier = Math.floor(enemySoldier - ( enemySoldier * ( 1 / ratio ) ));
+				enemyArcher  = Math.floor(enemyArcher - ( enemyArcher * ( 1 / ratio ) ));
+				alert("很可惜，您的部隊失敗了!");
+			}
+			else if ( enemyPower == myPower){			//平手
+				RomeCavalry = 0;						//將玩家兵力清空
+				RomeFootSoldier = 0;
+				RomeArcher  = 0;
+				enemyCavalry = 0;
+				enemySoldier = 0;
+				enemyArcher  = 0;
+				alert("雙方軍隊勢均力敵，戰到不剩一兵一卒!");
+			}
+			else{										//贏
+				enemyCavalry = 0;						//將敵人兵力清空
+				enemySoldier = 0;
+				enemyArcher  = 0;
+				setTimeout(function(){
+								$("#fightDiv").toggle();
+								document.getElementById("fight").onended = function(){setTimeout(function(){$("#fightDiv").toggle(); },500);};
+								setTimeout(function(){document.getElementById("fight").play();},200);
+						   },200);
+				RomeCavalry = Math.floor(RomeCavalry - ( RomeCavalry * ( ratio ) ));
+				RomeFootSoldier = Math.floor(RomeFootSoldier - ( RomeFootSoldier * ( ratio ) ));
+				RomeArcher  = Math.floor(RomeArcher - ( RomeArcher * ( ratio ) ));
+				alert("恭喜! 您的軍隊打了一場漂亮的勝仗!");
+				getData("get_enemyInfo.php",{playerID:playerID,ImgID:event.target.className},function(str){
+				/*  將敵人的資源總量取出*/													var data = JSON.parse(str);
+																								for( i = 0; i<4 ; i++){
+																									resourceAmount[resourceInfo[i]] += parseInt(data[resourceInfo[i]]);
+																								}
+																							});
+				update_data = {playerID:playerID,money:resourceAmount["money"],stone:resourceAmount["stone"],wood:resourceAmount["wood"],
+							   cereal:resourceAmount["cereal"]};
+				update("update_resource.php",update_data);	
+			}
+			update_data = {playerID:playerID,cavalry:RomeCavalry,soldier:RomeFootSoldier,archer:RomeArcher};
+			update("update_soldier.php",update_data);				//玩家的兵力一定要上傳database
+			if(!enemyCavalry && !enemySoldier && !enemyArcher){		//如果敵人兵力皆為0
+				removeEnemy(event.target.className);				//從database中移除該敵人，className中存放 worldMap_id
+				
+			}
+			else{
+				update_data = {playerID:playerID,ImgID:event.target.className,cavalry:enemyCavalry,soldier:enemySoldier,archer:enemyArcher};
+				update("update_enemy_soldier.php",update_data);
+				//將敵人剩餘資料存入資料庫
+			}
+		}
+		function attack(event){
+			find_enemy(event.target.className);
+			$("#worldMap_12").after("<img id = 'corps' src = '長槍兵.png' style = 'position:absolute; z-index : 2; left:779px; top:342px;' width = '150px' height = '150px' >");
+			travel(event);
+			$("#enemy").hide();
+			$("#worldMap").show();		
+		}
+		
+		function removeEnemy(id){
+			var enemy = document.getElementById(id);
+			var random = Math.floor(Math.random()*8+1);
+			update_data = {playerID:playerID,ImgID:id,filename:"世界地圖"+random+".PNG"};
+			update("update_world_map.php",update_data);				//將修改後的圖片資料存入資料庫
+			$.ajax({													//將enemylist中的敵人資料刪除
+				url:"delete_enemy.php",
+				data:{playerID:playerID,ImgID:id},
+				method:"POST",
+				async:false,
+				error:function(){alert("error")}
+			});
+		}
+		function disastor(row,col){	
+			var RomeCavalry	= 0;
+			var RomeFootSoldier = 0;
+			var RomeArcher = 0;
+			console.log("disastor");
+			getData("get_soldier.php",{playerID:playerID},function(str){
+														  var data = JSON.parse(str);
+														  RomeCavalry = data.cavalry;
+														  RomeFootSoldier = data.soldier;
+														  RomeArcher  = data.archer;
+														});
+			switch( map[row][col] ){							//0:可以走的地方
+				case 0: case 4: break;							//1:非攻擊目標的敵人
+				case 1: 										
+					var rand = Math.floor(Math.random()*2);
+					if( rand%2 == 0 ){
+						confirm("對方懾於我方大軍，因此不費一兵一卒得以借道通關!")
+						control = 1;
+						break;
+						
+					}
+					else{
+						var rand_cavalary = Math.random()*0.07;		
+						var rand_soldier  = Math.random()*0.07;		
+						var rand_archer   = Math.random()*0.07;
+						var lossOfCavalry = Math.floor(RomeCavalry * ( rand_cavalary ));
+						var lossOfSoldier = Math.floor(RomeFootSoldier * ( rand_soldier ));
+						var lossOfArcher  = Math.floor(RomeArcher  * ( rand_archer ));
+						RomeCavalry -= lossOfCavalry;
+						RomeFootSoldier -= lossOfSoldier;
+						RomeArcher  -= lossOfArcher;
+						confirm("對方緊守城門不願借道而行，雙方將領一言不合血流成河、檣櫓灰飛煙滅，導致\n                 羅馬騎兵損失"+ lossOfCavalry +"單位"
+											 +"\n                 羅馬步兵損失"+ lossOfSoldier +"單位"
+											 +"\n                 羅馬弩兵損失"+ lossOfArcher  +"單位");
+						control = 1;
+						update_data = {playerID:playerID,cavalry:RomeCavalry,soldier:RomeFootSoldier,archer:RomeArcher};
+						update("update_soldier.php",update_data);
+						break;					
+					}											//2:雪山
+				case 2:											//3:深淵
+					var rand_cavalary = Math.random()*0.015;		//4:敵人所在位置
+					var rand_soldier  = Math.random()*0.015;		//5:自己所在位置
+					var rand_archer   = Math.random()*0.015;
+					var lossOfCavalry = Math.floor(RomeCavalry * ( rand_cavalary ));
+					var lossOfSoldier = Math.floor(RomeFootSoldier * ( rand_soldier ));
+					var lossOfArcher  = Math.floor( RomeArcher  * (rand_archer ));
+					RomeCavalry -= lossOfCavalry;
+					RomeFootSoldier -= lossOfSoldier;
+					RomeArcher  -= lossOfArcher;
+					confirm("因雪山氣候嚴寒，軍隊遭遇雪崩導致\n                 羅馬騎兵損失"+ lossOfCavalry +"單位"
+																			   +"\n                 羅馬步兵損失"+ lossOfSoldier +"單位"
+														                       +"\n                 羅馬弩兵損失"+ lossOfArcher  +"單位")	;																				   
+					control = 1;
+					update_data = {playerID:playerID,cavalry:RomeCavalry,soldier:RomeFootSoldier,archer:RomeArcher};
+					update("update_soldier.php",update_data);
+					break;
+				case 3:
+					var rand_cavalary = Math.random()*0.05;		
+					var rand_soldier  = Math.random()*0.05;		
+					var rand_archer   = Math.random()*0.05;
+					var lossOfCavalry = Math.floor(RomeCavalry * ( rand_cavalary ));
+					var lossOfSoldier = Math.floor(RomeFootSoldier * ( rand_soldier ));
+					var lossOfArcher  = Math.floor(RomeArcher  * ( rand_archer ));
+					RomeCavalry -= lossOfCavalry;
+					RomeFootSoldier -= lossOfSoldier;
+					RomeArcher  -= lossOfArcher;
+					confirm("因遭遇裂谷，許多士兵失足滑落懸崖遭致\n                 羅馬騎兵損失"+ lossOfCavalry +"單位"
+																				   +"\n                 羅馬步兵損失"+ lossOfSoldier +"單位"
+																				   +"\n                 羅馬弩兵損失"+ lossOfArcher  +"單位");
+					control = 1;
+					update_data = {playerID:playerID,cavalry:RomeCavalry,soldier:RomeFootSoldier,archer:RomeArcher};
+					update("update_soldier.php",update_data);
+					break;
+			}											
+ 
+		}
+		async function travel(event){
+			//while(!control);
+			console.log("trval");
+			var tmp = event.target.className.split("worldMap_");
+			tmp = parseInt(tmp[1]);
+			var dst_row = Math.floor( tmp / size ) + 1;
+			var dst_col = (tmp % size) + 1;
+			for ( var i =0 ; i < 7 ; i++ ){
+				for(var j = 0 ; j < 7; j++){
+					if( map[i][j] == 5 ){
+						var src_row = i;
+						var src_col = j;
+					}
+				}
+			}
+			if( dst_col != src_col && dst_row != src_row ){			//  玩家和敵人在不同col,row
+				if( dst_col <  src_col  ){							//  敵人col 比 玩家col小
+					var rand = Math.floor(Math.random()*2);
+					if( rand%2 == 0 ){								//  偶數: 移動row
+						if( dst_row < src_row ){					//  敵人row 比 玩家row小
+							$("#corps").animate({top:"-=164px"},"slow",async function(){await disastor(src_row-1,src_col);				//	向上移動
+																					map[src_row][src_col] = 1;
+																					map[src_row-1][src_col] = 5;
+																					console.log("return");
+																					return travel(event);
+																				});	
+						}
+						else{										//  敵人row 比 玩家row大			
+							$("#corps").animate({top:"+=164px"},"slow",async function(){await disastor(src_row+1,src_col) 			//  向下移動
+																					control = 0;
+																					map[src_row][src_col] = 1;
+																					map[src_row+1][src_col] = 5;
+																					console.log("return");
+																					return travel(event);
+																				});	
+						}						
+					}
+					else{ 											//  奇數: 移動col
+						$("#corps").animate({left:"-=160.89px"},"slow",async function(){await disastor(src_row,src_col-1)   //  向左移動
+																				control = 0;
+																				map[src_row][src_col] = 1;
+																				map[src_row][src_col-1] = 5;
+																				console.log("return");
+																				return travel(event);
+																			});		
+
+					}
+				}
+				else {												//  敵人col 比 玩家col大
+					var rand = Math.floor(Math.random()*2);
+					if( rand%2 == 0 ){								//  偶數: 移動row
+						if( dst_row < src_row ){					//  敵人row 比 玩家row小
+							$("#corps").animate({top:"-=164px"},"slow",async function(){await disastor(src_row-1,src_col) //	向上移動
+																					control = 0;
+																					map[src_row][src_col] = 1;
+																					map[src_row-1][src_col] = 5;
+																					console.log("return");
+																					return travel(event);							
+							
+																				});	
+
+						}
+						else{										//  敵人row 比 玩家row大			
+							$("#corps").animate({top:"+=164px"},"slow",async function(){ await disastor(src_row+1,src_col) 	//  向下移動
+																				   control = 0;
+																				   map[src_row][src_col] = 1;
+																				   map[src_row+1][src_col] = 5;
+																				   console.log("return");
+																				   return travel(event);
+																				});
+						}						
+					}
+					else{ 											//  奇數: 移動col
+						$("#corps").animate({left:"+=160.89px"},"slow",async function(){ await disastor(src_row,src_col+1) 		//	向右移動
+																				control = 0;
+																				map[src_row][src_col] = 1;
+																				map[src_row][src_col+1] = 5;
+																				console.log("return");
+																				return travel(event);
+																			});
+					}
+				}
+				
+			}
+			else if( dst_col != src_col ){						//  玩家和敵人只有col不同
+				if( dst_col < src_col ){						//  敵人col 比 玩家col小
+					$("#corps").animate({left:"-=160.89px"},"slow",async function(){await disastor(src_row,src_col-1) 		//	向左移動
+																			control = 0;
+																			map[src_row][src_col] = 1;
+																			map[src_row][src_col-1] = 5;
+																			console.log("return");
+																			return travel(event);
+																		});
+				}
+				else{											//  敵人col 比 玩家col大			
+					$("#corps").animate({left:"+=160.89px"},"slow",async function(){await disastor(src_row,src_col+1) 		//  向右移動
+																			control = 0;
+																			map[src_row][src_col] = 1;
+																			map[src_row][src_col+1] = 5;
+																			console.log("return");
+																			return travel(event);
+																		});
+				}						
+			}
+			else if( dst_row != src_row ){						//	玩家和敵人只有row不同
+				if( dst_row < src_row ){						//  敵人row 比 玩家row小
+					$("#corps").animate({top:"-=164px"},"slow",async function(){await disastor(src_row-1,src_col) 		//	向上移動
+																		   control = 0;
+																		   map[src_row][src_col] = 1;
+																		   map[src_row-1][src_col] = 5;
+																		   console.log("return");
+																		   return travel(event);
+																		});
+				}
+				else{											//  敵人row 比 玩家row大			
+					$("#corps").animate({top:"+=164px"},"slow",async function(){await disastor(src_row+1,src_col) 		//  向下移動
+																		   control = 0;
+																		   map[src_row][src_col] = 1;
+																		   map[src_row+1][src_col] = 5;
+																		   console.log("return");
+																		   return travel(event);
+																		});
+				}			
+			}
+			else {												//	敵人和玩家位置相同
+				setTimeout(function(){  
+										$("#corps").remove();
+										after_attack(event);
+										newLoadMap();
+									},200)
+				return true;
+			}
+		}
+		function find_enemy(id){
+			var tmp =  id.split("worldMap_");		//id: worldMap_0~24
+			tmp = parseInt(tmp[1]);
+			var row = Math.floor( tmp / size ) + 1 ;
+			var col = (tmp % size) + 1 ; 
+			if(!map){	
+				map = new Array(7);
+				for(var i = 0 ; i < 7; i ++)
+					map[i] = new Array(5);
+			}
+			for( i = 0 ; i < 7 ; i++  ){		//建構7*7的Map先將四周填1
+				map[0][i] = 1;
+				map[6][i] = 1;
+				map[i][0] = 1;
+				map[i][6] = 1;
+			}
+			/*		0:可以走的地方
+					1:不能走的地圖 (非攻擊目標的敵人or地圖外)
+					2:雪山
+					3:深淵
+					4:敵人所在位置
+					5:自己所在位置		*/
+			map[row][col] = 4;					//將要攻打的地人位置加入地圖
+			getData("get_world_map.php",{playerID:playerID},function(str){
+															var data = JSON.parse(str);
+															for( i = 0 ; i < data.length ; i++){		
+																if( data[i].ImgID != id ){							//要攻打的敵人已經加入地圖，不重複考慮
+																	tmp = data[i].ImgID.split("worldMap_");
+																	tmp = parseInt(tmp[1]);
+																	row = Math.floor( tmp / size ) + 1 ;
+																	col = (tmp % size) + 1 ;
+																	tmp_2 = data[i].filename.split("世界地圖");
+																	tmp_2 = tmp_2[1].split(".");
+																	switch(parseInt(tmp_2[0])){
+																		case 1:
+																		case 2:
+																		case 3:
+																		case 4:
+																		case 5:
+																		case 7:
+																			map[row][col] = 0;
+																			break;
+																		case 6:
+																			map[row][col] = 2;
+																			break;
+																		case 8:
+																			map[row][col] = 3;
+																			break;
+																		case 9:
+																		case 10:
+																		case 11:
+																			map[row][col] = 1;
+																			break;
+																		case 12:
+																			map[row][col] = 5;
+																			break;
+																		default:
+																			alert("error");
+																	}
+																}
+															}
+														});
+				
+			
+		}
+	    function enemyInterface(event){
+			$("#worldMap").hide();
+			document.location.href = "project3.html?playerID="+playerID+"&ImgID="+event.target.id;
+			var filename = localStorage.getItem(event.target.id);
+			var enemyCavalry = 0;
+			var enemySoldier = 0;
+			var enemyArcher  = 0;
+			getData("get_enemyInfo.php",{playerID:playerID,ImgID:event.target.id},function(str){
+			/*從資料庫中抓取兵力*/													data = JSON.parse(str);
+																					enemyCavalry = parseInt(data.cavalry);
+																					enemySoldier = parseInt(data.soldier);
+																					enemyArcher  = parseInt(data.archer);
+																				});
+
+			$("#enemySoldier").text(": " + enemySoldier );
+			$("#enemyArcher").text(": " + enemyArcher );
+			$("#enemyCavalry").text(": " + enemyCavalry );
+			
+			var attackbtn = document.getElementById("attackbtn");
+			attackbtn.setAttribute("class",event.currentTarget.id);			//將worldMap_id 存到class中供後面使用
+		}
+		
+	    function compareIntegers(value1,value2){
+			var tmp1 = value1.split("worldMap_");
+			var tmp2 = value2.split("worldMap_");
+			return parseInt(tmp1[1]) - parseInt(tmp2[1]); 
+	    }
+		
+		function fillMap(){
+			var flag = 1;
+			getData("get_world_map.php",{playerID:playerID},function(str){
+																	var data = JSON.parse(str);
+																	if(data.length){	//如果database中有資料
+																		flag = 0;
+																		for(var i = 0 ; i<data.length ; i++){
+																			console.log(data[i].ImgID);
+																			console.log(data[i].filename);
+																			$("#" + data[i].ImgID).attr("src",data[i].filename);	
+																			var tmp = data[i].filename.split("wd");
+																			tmp = tmp[1].split(".");
+																			if(9<=tmp[0] && tmp[0]<=11){
+																				$("#" + data[i].ImgID).on("click",enemyInterface);
+																			}
+																		}
+																	}
+															});
+			return flag						// 1:原本在localStorage中有資料 0:原本沒資料
+		}
+		
+		function prepage(){
+			document.location.href = "project.html?playerID="+playerID;
+		}
+	    function newLoadMap(){
+			var flag = fillMap();							//輸入worldMapTable並回傳裡面是否有資料
+			console.log(flag);
+			if(flag){									//如果localstorage沒有任何 worldMap_的資料
+				for(i =0 ;i < size;i++){			//產生16個平原
+					var	nodeId = "worldMap_"+i;
+					var random = Math.floor(Math.random()*8+1);
+					$("#"+nodeId).attr("src","wd"+random+".gif");
+					console.log($("#"+nodeId).attr("src"));
+					/*update_data = {ImgID:nodeId,filename:"wd"+random+".gif"};
+					update("update_world_map.php",update_data);*/
+					localStorage.setItem(playerID + "_" + nodeId,"wd"+random+".gif");
+					//將圖片資料存入資料庫
+				}
+				generateEnemy();						//產生三個敵人
+				generateEnemy();
+				generateEnemy();			
+			}
+	    }
+		
+		function update(filename,object){
+			/*var req = new XMLHttpRequest();
+			req.open("POST","update_resource.php");
+			req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			var playerID = "ABC";
+			var message = [];
+			messages = "playerID=" + playerID + "&money=" + resourceAmount["money"]
+											+ "&stone=" + resourceAmount["stone"]
+											+ "&wood=" + resourceAmount["wood"]
+											+ "&cereal=" + resourceAmount["cereal"];
+			req.onload = function(){alert(this.responseText);};
+			req.send(messages);
+			req.onreadystatechange = function() {//Call a function when the state changes.	
+			$("#worldMap").before(messages);*/
+			
+			/*$.ajax({
+				url:filename, 			//update_resource.php??
+				data:object,
+				method:"POST",
+				async:false,
+				error:function(str){alert(str);}
+			});*/
+			object = JSON.stringify(object);
+			filename = filename.split("update_")[1];
+			localStorage.setItem(playerID + "_" + filename,object);
+		}
+		function getData(filename,object,myfunction){
+			/*$.ajax({
+				url:filename,
+				data:object,
+				method:"POST",
+				async:false,
+				error:function(){alert("")},
+				success:myfunction
+			});	*/
+			var str;
+			filename = filename.split("get_")[1];
+			switch(filename){
+				case "world_map.php":
+					var length = localStorage.length;
+					var array = [];
+					var tags = []; //create empty array
+					for(var i = 0; i < length ; i++){
+						tags[i] = localStorage.key(i);
+					}
+					tags.sort(compareIntegers); // sort the keys
+					for(var tag in tags){
+						console.log(tags[tag]);
+						if(tags[tag].startsWith( playerID + "_worldMap_"))
+						{
+							var tmp = tags[tag].split( playerID + "_" )[1];
+							array.push( {ImgID:tmp,filename:localStorage.getItem(tags[tag])} );
+						}
+					}
+					str = JSON.stringify(array);
+					console.log(str);
+					myfunction(str);
+					break;
+				default:
+					if(!str){str = "{}";}
+					myfunction(str);
+					break;
+			}
+		} 
+		
+		function generateEnemy(){
+		// if enemyID <8;
+		console.log("123");
+			var number = Math.floor(Math.random()*(size));	
+			var value;			//隨機挑一個地圖位置
+			//var value = localStorage.getItem("worldMap_" + number);
+			getData("get_world_map.php",{playerID:playerID},function(str){
+			/*取出該位置的地圖檔名*/							var  data = JSON.parse(str);
+																			console.log(playerID);
+																for(var i =0 ; i<data.length ; i++){
+																	console.log(data[i].ImgID);
+																	console.log("11worldMap_" + number );
+																	if(data[i].ImgID == "worldMap_" + number ){
+																		console.log(data[i]);
+																		value = data[i].filename;
+																		console.log(value);
+																	}
+																	//console.log(value);
+																}
+															});
+			var tmp = value.split("wd");
+			tmp = tmp[1].split(".");
+			if( tmp[0] < 9 && tmp[0] >= 0 ){									//如果取出不是敵人			
+				var rand = Math.floor(Math.random()*3+9);						//取得一個代表敵人地圖的index
+				$("#worldMap_" + number).attr("src","wd" + rand + ".gif");
+				$("#worldMap_" + number).attr("onclick","enemyInterface(event)");
+				/*update_data = {ImgID:"worldMap_" + number,filename:"wd" + rand + ".gif"};
+				update("update_world_map.php",update_data);				//將敵人地圖的資料存入database中*/
+				localStorage.setItem(playerID +"_worldMap_" + number,"wd" + rand + ".gif");
+				var enemyCavalry = 0;
+				var enemySoldier = 0;
+				var enemyArcher  = 0;
+				switch("wd" + rand + ".gif"){	
+					case "wd9.gif":
+						enemyCavalry = 500;
+						enemySoldier = 1500;
+						enemyArcher  = 1000;
+						enemyMoney	 = 20000;
+						enemyStone   = 20000;
+						enemyWood    = 20000;
+						enemyCereal  = 20000;
+						break;
+					case "wd10.gif":
+						enemyCavalry = 500;
+						enemySoldier = 1500;
+						enemyArcher  = 1000;
+						enemyMoney	 = 20000;
+						enemyStone   = 20000;
+						enemyWood    = 20000;
+						enemyCereal  = 20000;
+						break;
+					case "wd11.gif":
+						enemyCavalry = 500;
+						enemySoldier = 1500;
+						enemyArcher  = 1000;
+						enemyMoney	 = 20000;
+						enemyStone   = 20000;
+						enemyWood    = 20000;
+						enemyCereal  = 20000;
+						break;
+				}
+				/*update_data = {playerID:playerID,ImgID:"worldMap_" + number,cavalry:enemyCavalry,soldier:enemySoldier,archer:enemyArcher};
+				update("update_enemy_soldier.php",update_data);		//將敵人兵力傳入資料庫
+				update_data = {playerID:playerID,ImgID:"worldMap_" + number,money:enemyMoney,stone:enemyStone,wood:enemyStone,cereal:enemyCereal};
+				update("update_enemy_resource.php",update_data);	//將敵人資源傳入資料庫*/
+				
+				update_data = {ImgID:"worldMap_" + number,cavalry:enemyCavalry,soldier:enemySoldier,archer:enemyArcher};
+				update("update_enemy_soldier.php",update_data);		//將敵人兵力傳入資料庫
+				/*update_data = {ImgID:"worldMap_" + number,money:enemyMoney,stone:enemyStone,wood:enemyStone,cereal:enemyCereal};
+				update("update_enemy_resource.php",update_data);	//將敵人資源傳入資料庫*/
+			}
+			else generateEnemy();
+		}
+		
+		function switchBGM(){
+			var BGM = document.getElementById("worldMapBGM");
+			if(BGM.paused)	BGM.play();
+			else BGM.pause();
+		}
+	    function start()
+		{
+			var url = location.href;													
+			var temp = url.split("/project2.html?playerID=");													
+			playerID = temp[1];
+			div = document.getElementById("worldMap");	
+			createTable(size);
+		    newLoadMap(); // load the previously saved searches
+			var BGM = document.getElementById("worldMapBGM");
+			BGM.volume = 0.1;
+			BGM.loop = true;
+			BGM.play();
+			select = document.getElementById("select");
+			select.volume = 0.5;
+			//setInterval(generateEnemy,100000);
+		} // end function start
+	    window.addEventListener("load",start,false);
+	    </script>
+   </head>
+   <body>
+		<!--<div id = "worldMap" align="center">
+			<table>
+				<tr>
+					<td>
+						<div class = "rotation" >
+							<div class="box" id = "worldMap_0">
+								<div class="layer">
+									<img class = "worldMapImg face1">
+								</div>
+								<div class="layer">
+									<img class = "worldMapImg face2">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face3">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face5">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face6">
+								</div>
+							</div>
+						<div>
+					</td>
+					<td>
+						<div class = "rotation" >
+							<div class="box" id = "worldMap_1">
+								<div class="layer">
+									<img class = "worldMapImg face1">
+								</div>
+								<div class="layer">
+									<img class = "worldMapImg face2">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face3">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face5">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face6">
+								</div>
+							</div>
+						</div>
+					</td>
+					<td>
+						<div class = "rotation" >
+							<div class="box" id = "worldMap_2">
+								<div class="layer">
+									<img class = "worldMapImg face1">
+								</div>
+								<div class="layer">
+									<img class = "worldMapImg face2">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face3">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face5">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face6">
+								</div>
+							</div>
+						</div>
+					</td>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div class = "rotation" >
+							<div class="box" id = "worldMap_3">
+								<div class="layer">
+									<img class = "worldMapImg face1">
+								</div>
+								<div class="layer">
+									<img class = "worldMapImg face2">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face3">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face5">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face6">
+								</div>
+							</div>
+						</div>
+					</td>
+					<td>
+						<div class = "rotation" >
+							<div class="box" id = "worldMap_4">
+								<div class="layer">
+									<img class = "worldMapImg face1">
+								</div>
+								<div class="layer">
+									<img class = "worldMapImg face2">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face3">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face5">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face6">
+								</div>
+							</div>
+						</div>
+					</td>
+					<td>
+						<div class = "rotation" >
+							<div class="box" id = "worldMap_5">
+								<div class="layer">
+									<img class = "worldMapImg face1">
+								</div>
+								<div class="layer">
+									<img class = "worldMapImg face2">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face3">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face5">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face6">
+								</div>
+							</div>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div class = "rotation" >
+							<div class="box" id = "worldMap_6">
+								<div class="layer">
+									<img class = "worldMapImg face1">
+								</div>
+								<div class="layer">
+									<img class = "worldMapImg face2">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face3">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face5">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face6">
+								</div>
+							</div>
+						</div>
+					</td>
+					<td>
+						<div class = "rotation" >
+							<div class="box" id = "worldMap_7">
+								<div class="layer">
+									<img class = "worldMapImg face1">
+								</div>
+								<div class="layer">
+									<img class = "worldMapImg face2">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face3">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face5">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face6">
+								</div>
+							</div>
+						</div>
+					</td>
+					<td>
+						<div class = "rotation" >
+							<div class="box" id = "worldMap_8">
+								<div class="layer">
+									<img class = "worldMapImg face1">
+								</div>
+								<div class="layer">
+									<img class = "worldMapImg face2">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face3">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face5">
+								</div>
+								<div class="layer">	
+									<img class = "worldMapImg face6">
+								</div>
+							</div>
+						</div>	
+					</td>
+				</tr>
+			</table>	
+		</div>-->
+	   <img id = "backbtn" src = "back.png" onclick = "prepage()" width = 80px; height = 80px;></img>
+		<div id = "worldMap" align="center">
+		</div>
+		<div id = "enemy" style = "display:none; position:relative; left:25% ; top:70px;" align="center" >
+			<p   id = "enemyCountry">賴達族村莊</p>
+			<img id = "enemyPic" src = "敵人圖片.PNG" align="center">
+			<div id = "enemyInfo">
+				<table id = "enemyInfoTable">
+					<thead>
+						<tr>
+							<th>
+								<img src = "金幣.PNG" style = "width:30px; height:30px;">
+								<p id = "money" class = "money">???</p>
+								<img src = "石礦.PNG" style = "width:30px; height:30px;">
+								<p id = "stone" class = "stone">???</p>
+								<img src = "木材.PNG" style = "width:30px; height:30px;">
+								<p id = "wood" class = "wood">???</p>
+								<img src = "穀物.PNG" style = "width:30px; height:30px;">
+								<p id = "cereal" class = "cereal">???</p>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<img id = "enemyImg" src = "野蠻人.png">
+							</td>
+						</tr>
+					</tbody>
+					<tfoot>
+						<tr>
+							<td>
+								<img src = "賴達步兵.PNG" style = "width:40px; height:40px;">
+								<p id = "enemySoldier"></p><br>
+								<img src = "賴達弩兵.PNG" style = "width:40px; height:40px;">
+								<p id = "enemyArcher"></p><br>
+								<img src = "賴達騎兵.PNG" style = "position:relative; width:40px;
+								right:8px; height:40px;">
+								<p id = "enemyCavalry" style = "position:relative;right:8px;" ></p>
+							</td>
+						</tr>
+					</tfoot>
+				</table>
+			<input type = "button" id = "attackbtn" value = "攻擊" onclick = "attack(event)">
+			</div>
+		</div>
+		<div >
+			<input type = "button" style = "position:absolute; top:0px; left:0px;" onclick= "generateEnemy()" value = "製造敵人">
+		</div>
+	    <div id = "fightDiv" align = "center">
+			<video id = "fight" preload width="640" height="360" >
+				<source src = "火柴人打鬥.mp4" type = "video/mp4" />
+			<video>
+	    </div>
+		<audio id = "worldMapBGM" preload = "auto" >
+		    <source src = "worldMap.mp3" type = "audio/mpeg">
+		</audio>
+		<audio id = "select" preload = "auto">
+			<source src = "select.mp3" type = "audio/mpeg">
+		</audio>
+		<img src = "volume.png" style = "position:fixed;top:20px;left:0px;" height = "100px" width = "100px" onclick = "switchBGM()">
+	</body>
+</html>
+
+
+<!--
+**************************************************************************
+* (C) Copyright 1992-2012 by Deitel & Associates, Inc. and               *
+* Pearson Education, Inc. All Rights Reserved.                           *
+*                                                                        *
+* DISCLAIMER: The authors and publisher of this book have used their     *
+* best efforts in preparing the book. These efforts include the          *
+* development, research, and testing of the theories and programs        *
+* to determine their effectiveness. The authors and publisher make       *
+* no warranty of any kind, expressed or implied, with regard to these    *
+* programs or to the documentation contained in these books. The authors *
+* and publisher shall not be liable in any event for incidental or       *
+* consequential damages in connection with, or arising out of, the       *
+* furnishing, performance, or use of these programs.                     *
+**************************************************************************
+-->
